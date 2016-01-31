@@ -1,5 +1,17 @@
-## This CMakeLists.txt file exists only for building as ROS 3rd-party package. Building for other purpose is not tested. See https://github.com/AndreaCensi/csm/pull/10
-cmake_minimum_required(VERSION 2.8)
-project(csm)
+cmake_minimum_required(VERSION 2.6)
 
-INSTALL(FILES package.xml DESTINATION share/csm)
+PROJECT(csm_eigen)
+
+ADD_SUBDIRECTORY(src)
+
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES csm_eigen
+  DEPENDS Eigen3
+)
+
+#install(TARGETS csm_eigen
+#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)

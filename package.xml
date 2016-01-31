@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>csm</name>
+  <name>csm_eigen</name>
   <version>1.0.0</version>
   <description>
     This is a ROS 3rd-party wrapper <a href = "http://www.ros.org/reps/rep-0136.html">(see REP-136 for more detail)</a> of Andrea Censi's CSM package. 
@@ -22,9 +22,6 @@
   <url type="bugtracker">https://github.com/AndreaCensi/csm/issues</url>
   <maintainer email="130s@2000.jukuin.keio.ac.jp">Isaac I.Y. Saito</maintainer>
 
-  <buildtool_depend>cmake</buildtool_depend>
-  <run_depend>catkin</run_depend>
-  <export>
-    <build_type>cmake</build_type>
-  </export>
+  <buildtool_depend>catkin</buildtool_depend>
+
 </package>
