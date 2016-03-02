@@ -182,8 +182,8 @@ int ld_valid_fields(LDP ld)  {
 		return 0;
 	}
 	
-	int min_nrays = 10;
-	int max_nrays = 10000;
+	const int min_nrays = 10;
+	const int max_nrays = 10000;
 	if(ld->nrays < min_nrays || ld->nrays > max_nrays) {
 		sm_error("Invalid number of rays: %d\n", ld->nrays);
 		return 0;
@@ -194,7 +194,7 @@ int ld_valid_fields(LDP ld)  {
 		return 0;
 	}
 	double min_fov = deg2rad(20.0); 
-	double max_fov = 2.01 * M_PI;
+	const double max_fov = 2.01 * M_PI;
 	double fov = ld->max_theta - ld->min_theta;
 	if( fov < min_fov || fov > max_fov) {
 		sm_error("Strange FOV: %f rad = %f deg \n", fov, rad2deg(fov));
@@ -211,8 +211,8 @@ int ld_valid_fields(LDP ld)  {
 		return 0;
 	}
 	/* Check that there are valid rays */
-	double min_reading = 0;
-	double max_reading = 100;
+	const double min_reading = 0;
+	const double max_reading = 100;
 	int i; for(i=0;i<ld->nrays;i++) {
 		double th = ld->theta[i];
 		if(ld->valid[i]) {

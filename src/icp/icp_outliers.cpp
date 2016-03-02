@@ -1,4 +1,5 @@
 #include <math.h>
+#include <iostream>
 
 #include "icp.h"
 #include <vector>
@@ -125,7 +126,8 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 
 	/* The dists for the correspondence are sorted
 	   in ascending order */
-		quicksort(dist2, 0, k-1);
+		//quicksort(dist2, 0, k-1);
+    std::sort(dist2.begin(), dist2.begin()+k);
 		double error_limit1 = dist2[order];
 	
 		/* Then we take a order statics (o*K) */
