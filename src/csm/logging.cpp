@@ -6,7 +6,6 @@
 
 #include "logging.h"
 #include "csm_all.h"
-#include "utils.h"
 
 
 int sm_debug_write_flag = 0;
@@ -15,12 +14,6 @@ const char * sm_program_name = 0;
 
 void sm_debug_write(int flag) {
 	sm_debug_write_flag = flag;
-}
-
-char sm_program_name_temp[256];
-void sm_set_program_name(const char*name) {
-	my_basename_no_suffix(name, sm_program_name_temp);
-	sm_program_name = sm_program_name_temp;
 }
 
 int checked_for_xterm_color = 0;

@@ -12,21 +12,6 @@
 #include "icp.h"
 
 
-void sm_journal_open(const char* file) {
-	file = 0; (void) file;
-/*	journal_open(file);*/
-}
-
-void ld_invalid_if_outside(LDP ld, double min_reading, double max_reading) {
-	int i;
-	for(i=0;i<ld->nrays;i++) {
-		if(!ld_valid_ray(ld, i)) continue;
-		double r = ld->readings[i];
-		if( r <= min_reading || r > max_reading)
-			ld->valid[i] = 0;
-	}
-}
-
 void sm_icp(struct sm_params*params, struct sm_result*res) {
 	res->valid = 0;
 
@@ -131,21 +116,10 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 				&cov0_x, &dx_dy1, &dx_dy2);
 		
 			val cov_x = sc(square(params->sigma), cov0_x); 
-/*			egsl_v2da(cov_x, res->cov_x); */
 		
 			res->cov_x_m = egsl_v2gslm(cov_x);
 			res->dx_dy1_m = egsl_v2gslm(dx_dy1);
 			res->dx_dy2_m = egsl_v2gslm(dx_dy2);
-		
-			//if(0) {
-				//egsl_print("cov0_x", cov0_x);
-				//egsl_print_spectrum("cov0_x", cov0_x);
-		
-				//val fim = ld_fisher0(laser_ref);
-				//egsl_print("fim", fim);
-				//val ifim = inv(fim);
-				//egsl_print_spectrum("ifim", ifim);
-			//}
 		}
 	
 		res->error = best_error;

@@ -34,9 +34,7 @@ SET(CSM_SRC
   csm/laser_data.cpp
   csm/math_utils.cpp
   csm/math_utils_gsl.cpp
-  csm/utils.cpp
   csm/logging.cpp
-  csm/sm_options.cpp
   csm/orientation.cpp
   csm/clustering.cpp)
 
@@ -59,14 +57,9 @@ SET(ICP_SRC
   icp/icp_loop.cpp
   icp/icp_outliers.cpp)
 
-SET(OPTIONS_SRC  
-   options/options.cpp
-   options/options_interface.cpp)
-
 ADD_LIBRARY(csm_eigen
 	${CSM_SRC}
 	${EGSL_SRC} 
 	${GPC_SRC}
-	${ICP_SRC}
-	${OPTIONS_SRC})
+	${ICP_SRC})
 
