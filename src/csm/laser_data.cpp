@@ -41,7 +41,6 @@ void ld_alloc(LDP ld, int nrays) {
 	
 	ld->cluster      = alloc_array(nrays, -1);
 	ld->alpha        = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
-	ld->cov_alpha    = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	ld->alpha_valid  = alloc_zero_array<int>(nrays);
 
 	ld->true_alpha   = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
@@ -95,7 +94,6 @@ void ld_dealloc(struct laser_data*ld){
 	free(ld->alpha);
 	free(ld->alpha_valid);
 	free(ld->true_alpha);
-	free(ld->cov_alpha);
 	free(ld->up_bigger);
 	free(ld->up_smaller);
 	free(ld->down_bigger);

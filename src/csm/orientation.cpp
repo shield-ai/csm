@@ -16,7 +16,6 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 	for(i=0;i<ld->nrays;i++){
 		if(!ld_valid_ray(ld,i) || (ld->cluster[i] == -1)) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
-			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
 			ld->alpha_valid[i] = 0;
 			continue;
 		}
@@ -28,7 +27,6 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 
 		if(0==num_neighbours) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
-			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
 			ld->alpha_valid[i] = 0;
 			continue;
 		}
@@ -50,14 +48,11 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 			thetas,readings,&alpha,&cov0_alpha);
 		if(std::isnan(alpha)) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN();
-			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN();
 			ld->alpha_valid[i] = 0;
 		} else {  
 			ld->alpha[i] = alpha;
-			ld->cov_alpha[i] = cov0_alpha * square(sigma);
 			ld->alpha_valid[i] = 1;
 		}
-		/* printf("---------- i = %d alpha = %f sigma=%f cov_alpha = %f\n", i, alpha, ld->cov_alpha[i]);*/
 	}
 }
 
@@ -111,7 +106,6 @@ void filter_orientation(double theta0, double rho0, size_t n,
 	egsl_pop();
 /*
 //	printf("dalpha_df1 = %f dalpha_drho = %f\n",dalpha_df1,dalpha_drho);
-//	printf("f1 = %f covf1 = %f alpha = %f cov_alpha = %f\n ",f1,cov_f1,*alpha,*cov0_alpha);
 //	printf("sotto = %f\n ",(square(rho0) + square(f1)));
 	
 //	printf("   alpha = %f sigma= %f°\n", *alpha, rad2deg(0.01*sqrt(*cov0_alpha)));
