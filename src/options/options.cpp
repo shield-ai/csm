@@ -76,7 +76,7 @@ int options_parse_args(struct option*ops, int argc, const char* argv[]) {
 			exit(0);
 		}
 		
-		if(!strcmp("help",name) || !strcmp("h",name) ) {
+		if(!strcmp("h",name) || !strcmp("help",name) ) {
 			options_print_help(ops, stdout);
 			exit(0);
 		}

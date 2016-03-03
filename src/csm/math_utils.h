@@ -19,14 +19,6 @@ double distance_squared_d(const double a[2], const double b[2]);
 
 /** Returns an angle difference in the [-pi, pi] range */
 double angleDiff(double a, double b);
-double square(double x);
-
-/** Degrees to radians */
-double deg2rad(double deg);
-
-/** Radians to degrees */
-double rad2deg(double rad);
-
 
 int minmax(int from,int to,int x);
 
@@ -88,6 +80,24 @@ double normalize_0_2PI(double angle);
 
 /** Maximum value in the array */
 double max_in_array(const double*v, int n);
+
+/** Templated math functions */
+template <typename T>
+T square(T x) {
+  return x*x;
+}
+
+/** Degrees to radians */
+template <typename T>
+constexpr T deg2rad(T deg) {
+	return deg * (M_PI / 180);
+}
+
+/** Radians to degrees */
+template <typename T>
+constexpr T rad2deg(T rad) {
+	return rad * (180 / M_PI);	
+}
 
 #endif
 

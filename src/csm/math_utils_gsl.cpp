@@ -90,14 +90,12 @@ const char* gsl_friendly_pose(gsl_vector*v) {
 
 
 /*double distance(const gsl_vector* a, const gsl_vector* b) {
-	distance_counter++;
 	double x = gvg(a,0)-gvg(b,0);
 	double y = gvg(a,1)-gvg(b,1);
 	return sqrt(x*x+y*y);
 }
 
 double distance_squared(const gsl_vector* a, const gsl_vector* b) {
-	distance_counter++;
 	double x = gvg(a,0)-gvg(b,0);
 	double y = gvg(a,1)-gvg(b,1);
 	return x*x+y*y;

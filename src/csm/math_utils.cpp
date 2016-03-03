@@ -43,10 +43,7 @@ void possible_interval(
 
 
 
-int distance_counter = 0;
-
 double distance_squared_d(const double a[2], const double b[2]) {
-	distance_counter++;
 	double x = a[0]-b[0];
 	double y = a[1]-b[1];
 	return x*x + y*y;
@@ -70,14 +67,6 @@ int any_nan(const double *d, int n) {
 
 double norm_d(const double p[2]) {
 	return sqrt(p[0]*p[0]+p[1]*p[1]);
-}
-
-double deg2rad(double deg) {
-	return deg * (M_PI / 180);
-}
-
-double rad2deg(double rad) {
-	return rad * (180 / M_PI);	
 }
 
 void copy_d(const double*from, int n, double*to) {
@@ -119,10 +108,6 @@ void pose_diff_d(const double pose2[3], const double pose1[3], double res[3]) {
 	
 	while(res[2] > +M_PI) res[2] -= 2*M_PI;
 	while(res[2] < -M_PI) res[2] += 2*M_PI;
-}
-
-double square(double x) {
-	return x*x;
 }
 
 double angleDiff(double a, double b) {
@@ -205,9 +190,6 @@ double normalize_0_2PI(double t) {
 	return t;
 }
 
-double dot_d(const double p[2], const double q[2]);
-
-
 double dot_d(const double p[2], const double q[2]) {
 	return p[0]*q[0] + p[1]*q[1];
 }
@@ -220,9 +202,8 @@ int segment_ray_tracing(const double p0[2], const double p1[2], const double eye
 	*range = std::numeric_limits<double>::quiet_NaN();
 	
 	// p0 - p1
-	double arrow[2] = {p1[0]-p0[0],p1[1]-p0[1]};
 	// Normal to segment line
-	double S[2] = { -arrow[1], arrow[0]};
+	double S[2] = { p0[1]-p1[1], p1[0]-p0[0]};
 	// Viewing direction
 	double N[2] = { cos(direction), sin(direction)};
 	// If S*N = 0 then they cannot cross
@@ -245,9 +226,9 @@ int segment_ray_tracing(const double p0[2], const double p1[2], const double eye
 	double midpoint[2] = { 0.5*(p1[0]+p0[0]),0.5*(p1[1]+p0[1])};
 	
 	double seg_size = distance_d(p0, p1);
-	double dist_to_midpoint = distance_d(crossing, midpoint);
+	//double dist_to_midpoint = distance_d(crossing, midpoint);
 	
-	if(dist_to_midpoint > seg_size/2 )
+	if(distance_d(crossing, midpoint) > seg_size/2 )
 		return 0;
 	
 	*range = dist;
@@ -255,10 +236,8 @@ int segment_ray_tracing(const double p0[2], const double p1[2], const double eye
 }
 
 double segment_alpha(const double p0[2], const double p1[2]) {
-	double arrow[2] = {p1[0]-p0[0],p1[1]-p0[1]};
 	// Normal to segment line
-	double S[2] = { -arrow[1], arrow[0]};
-	return atan2(S[1], S[0]);
+	return atan2(p1[0]-p0[0], p0[1]-p1[1]);
 }
 
 
@@ -274,7 +253,7 @@ double max_in_array(const double*v, int n) {
 	assert(n>0);
 	double m = v[0];
 	int i; 
-	for(i=0;i<n;i++)
+	for(i=1;i<n;i++)
 		if(v[i]>m) m = v[i];
 	return m;
 }

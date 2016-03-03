@@ -39,10 +39,7 @@ void ld_create_jump_tables(struct laser_data* ld) {
 	}	
 }
 
-extern int distance_counter;
-
 INLINE double local_distance_squared_d(const double* a, const double* b)  {
-	distance_counter++;
 	double x = a[0] - b[0];
 	double y = a[1] - b[1];
 	return x*x + y*y;
