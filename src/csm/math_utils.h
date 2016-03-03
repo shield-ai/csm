@@ -7,81 +7,28 @@
 #define M_PI           3.14159265358979323846
 #endif
 
-#ifndef NAN
-#define NAN GSL_NAN
-#endif
-     
-/** Returns norm of 2D point p */
-double norm_d(const double p[2]);
-
-double distance_d(const double a[2], const double b[2]);
-double distance_squared_d(const double a[2], const double b[2]);
-
-/** Returns an angle difference in the [-pi, pi] range */
-double angleDiff(double a, double b);
-
-int minmax(int from,int to,int x);
-
-/** Copies n doubles from from to to */
-void copy_d(const double*from, int n, double*to);
-
-/** These are the operators defined in Smith & Cheeseman  */
-void ominus_d(const double x[3], double res[3]);
-void oplus_d(const double x1[3], const double x2[3], double res[3]);
-void pose_diff_d(const double second[3], const double first[3], double res[3]);
-	
-	
-void transform_d(const double point2d[2], const double pose[3], double result2d[2]);
-	
-/** Projects (p[0],p[1]) on the LINE passing through (ax,ay)-(bx,by). If distance!=0, distance is set
-to the distance from the point to the segment */
-void projection_on_line_d(
-	const double a[2],
-	const double b[2],
-	const double p[2],
-	double res[2],
-	double *distance);
-	
-/** Projection of P on the SEGMENT A-B */
-void projection_on_segment_d(
-	const double a[2],
-	const double b[2],
-	const double P[2],
-   double proj[2]);
-	
-/** Distance of x from its projection on segment a-b */
-double dist_to_segment_d(const double a[2], const double b[2], const double x[2]);
-
-/** Same thing as dist_to_segment_d(), but squared */
-double dist_to_segment_squared_d(const double a[2], const double b[2], const double x[2]);
-
-/* Executes ray tracing for a segment. p0 and p1 are the segments extrema, eye is the position
-of the eye, and direction is the direction of the ray coming out of the eye. Returns true
-if the ray intersects the segment, and in that case *range contains the length of the ray. */
-int segment_ray_tracing(const double p0[2], const double p1[2], const double eye[2], double direction, double*range);
-
-/** Returns the orientation of the normal for the line passing through p0-p1 */
-double segment_alpha(const double p0[2], const double p1[2]);
-
-/** A function to print poses and covariances in a friendly way */
-const char* friendly_pose(const double*pose);
-
-/** Returns true if any value in d is NAN */
-int any_nan(const double *d, int n);
-
-/** Count numbers of items in array v equal to value */
-int count_equal(const int*v, int n, int value);
-
-/** Normalizes an angle in the 0-2PI range */
-double normalize_0_2PI(double angle);
-
-/** Maximum value in the array */
-double max_in_array(const double*v, int n);
+/** Inlinable local functions **/
+inline int minmax(int from, int to, int x) {
+	return (std::max)((std::min)(x,to),from);
+}
 
 /** Templated math functions */
+/** Square value **/
 template <typename T>
-T square(T x) {
+inline T square(T x) {
   return x*x;
+}
+
+/** Calculate distance squared **/
+template <typename T>
+inline T distance_squared_d(const T a[2], const T b[2]) {
+	return square(a[0]-b[0]) + square(a[1]-b[1]);
+}
+
+/** Calculate normal **/
+template <typename T>
+inline T norm_d(const T p[2]) {
+	return std::sqrt(p[0]*p[0]+p[1]*p[1]);
 }
 
 /** Degrees to radians */
@@ -96,5 +43,111 @@ constexpr T rad2deg(T rad) {
 	return rad * (180 / M_PI);	
 }
 
-#endif
+/** Copies n doubles from from to to */
+template <typename T>
+void copy_d(const T *from, int n, T *to) {
+	int i; for(i=0;i<n;i++) to[i] = from[i];
+}
 
+/** Returns true if any value in d is NAN */
+template <typename T>
+int any_nan(const T *d, int n) {
+	int i; for(i=0;i<n;i++) 
+		if(std::isnan(d[i]))
+			return 1;
+	return 0;
+}
+
+/** Count numbers of items in array v equal to value */
+template <typename T>
+int count_equal(const T *v, int n, T value) {
+	int num = 0, i;
+	for(i=0;i<n;i++) if(value == v[i]) num++;
+	return num;
+}
+
+/** Returns an angle difference in the [-pi, pi] range */
+template <typename T>
+T angleDiff(T a, T b) {
+	T t = a - b;
+	while(t<-M_PI) t+= 2*M_PI;
+	while(t>M_PI)  t-= 2*M_PI;
+	return t;
+}
+
+/** These are the operators defined in Smith & Cheeseman  */
+/** Note: ominus_d and oplus_d coperators combined for performance */
+template <typename T>
+void pose_diff_d(const T pose2[3], const T pose1[3], T res[3]) {
+  T temp[2];
+	T c = std::cos(pose1[2]);
+	T s = std::sin(pose1[2]);
+	temp[0] = -c*pose1[0]-s*pose1[1];
+	temp[1] =  s*pose1[0]-c*pose1[1];
+	s = -s;
+	res[0]=temp[0]+c*pose2[0]-s*pose2[1];
+	res[1]=temp[1]+s*pose2[0]+c*pose2[1];
+	res[2]=-pose1[2]+pose2[2];
+	
+	while(res[2] > +M_PI) res[2] -= 2*M_PI;
+	while(res[2] < -M_PI) res[2] += 2*M_PI;
+}
+
+/** Projects (p[0],p[1]) on the LINE passing through (ax,ay)-(bx,by). If distance!=0, distance is set
+to the distance from the point to the segment */
+template <typename T>
+void projection_on_line_d(const T a[2], const T b[2], const T p[2], T res[2], T *distance) {
+	T t0 = a[0]-b[0];
+	T t1 = a[1]-b[1];
+	T one_on_r = 1 / sqrt(t0*t0+t1*t1);
+	/* normal */
+	T nx = t1  * one_on_r ;
+	T ny = -t0 * one_on_r ;
+	T c= nx, s = ny; 
+	T rho = c*a[0]+s*a[1];
+
+	res[0] =   c*rho + s*s*p[0] - c*s*p[1] ;
+	res[1] =   s*rho - c*s*p[0] + c*c*p[1] ;	
+	
+	if(distance)
+		*distance = fabs(rho-(c*p[0]+s*p[1]));
+}
+
+template <typename T>
+void projection_on_segment_d(const T a[2], const T b[2], const T x[2], T proj[2]) 
+{
+	projection_on_line_d(a,b,x,proj,static_cast<double*>(nullptr));
+	if ((proj[0]-a[0])*(proj[0]-b[0]) +
+	    (proj[1]-a[1])*(proj[1]-b[1]) < 0 ) {
+		/* the projection is inside the segment */
+	} else 
+		if(distance_squared_d(a,x) < distance_squared_d(b,x)) 
+			copy_d(a,2,proj);
+		else
+			copy_d(b,2,proj);
+}
+
+/** Distance of x from its projection on segment a-b */
+template <typename T>
+T dist_to_segment_d(const T a[2], const T b[2], const T x[2]) {
+	T proj[2]; T distance;
+	projection_on_line_d(a,b,x,proj, &distance);
+	if ((proj[0]-a[0])*(proj[0]-b[0]) +
+	    (proj[1]-a[1])*(proj[1]-b[1]) < 0 ) {
+		/* the projection is inside the segment */
+		return distance;
+	} else 
+		return sqrt((std::min)(distance_squared_d(a,x), distance_squared_d(b,x)));
+}
+
+/** Templated utility function **/
+/** A function to print poses and covariances in a friendly way */
+static char tmp_buf[1024];
+template <typename T>
+const char* friendly_pose(const T *pose) {
+	sprintf(tmp_buf, "(%4.2f mm, %4.2f mm, %4.4f deg)",
+		1000*pose[0],1000*pose[1],rad2deg(pose[2]));
+	return tmp_buf;
+}
+
+#endif
