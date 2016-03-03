@@ -4,11 +4,7 @@
 #include "icp.h"
 #include "../csm/csm_all.h"
 
-int compatible(struct sm_params*params, int i, int j);
-
 int compatible(struct sm_params*params, int i, int j) {
-	if(!params->do_alpha_test) return 1;
-
 	double theta0 = 0; /* FIXME */
 	if((params->laser_sens->alpha_valid[i]==0) ||
 	 (params->laser_ref->alpha_valid[j]==0))
@@ -61,7 +57,7 @@ void find_correspondences(struct sm_params*params) {
 			if(dist>square(params->max_correspondence_dist)) continue;
 			
 			if( (-1 == j1) || (dist < best_dist) ) {
-				if(compatible(params, i, j)) {
+				if(!params->do_alpha_test || compatible(params, i, j)) {
 					j1 = j; 
 					best_dist = dist;
 				}

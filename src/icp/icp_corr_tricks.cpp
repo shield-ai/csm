@@ -45,8 +45,6 @@ INLINE double local_distance_squared_d(const double* a, const double* b)  {
 	return x*x + y*y;
 }
 
-#define SQUARE(a) ((a)*(a))
-
 /* Assumes that points_w is filled.  */
 void find_correspondences_tricks(struct sm_params*params) {
 	const LDP laser_ref  = params->laser_ref;
@@ -136,7 +134,7 @@ void find_correspondences_tricks(struct sm_params*params) {
 						((delta_theta > M_PI*0.5) ? 1 : mysin(delta_theta));
 					/* If going up we can't make better than best_dist, then
 					    we stop searching in the "up" direction */
-					if(SQUARE(min_dist_up) > best_dist) { 
+					if(square(min_dist_up) > best_dist) { 
 						up_stopped = 1; continue;
 					}
 					/* If we are moving away, then we can implement the jump tables
@@ -172,7 +170,7 @@ void find_correspondences_tricks(struct sm_params*params) {
 					double delta_theta = (p_i_w_phi - laser_ref->theta[down]);
 					double min_dist_down = p_i_w_nrm2 * 
 						((delta_theta > M_PI*0.5) ? 1 : mysin(delta_theta));
-					if( SQUARE(min_dist_down) > best_dist) { 
+					if( square(min_dist_down) > best_dist) { 
 						down_stopped = 1; continue;
 					}
 					down += (laser_ref->readings[down] < p_i_w_nrm2) ?

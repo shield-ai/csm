@@ -66,9 +66,6 @@ double segment_alpha(const double p0[2], const double p1[2]);
 /** A function to print poses and covariances in a friendly way */
 const char* friendly_pose(const double*pose);
 
-/** Returns true v is NAN */
-int is_nan(double v);
-
 /** Returns true if any value in d is NAN */
 int any_nan(const double *d, int n);
 

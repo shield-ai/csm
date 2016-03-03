@@ -48,11 +48,7 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 		double alpha=42, cov0_alpha=32;
 		filter_orientation(ld->theta[i],ld->readings[i],num_neighbours,
 			thetas,readings,&alpha,&cov0_alpha);
-#ifndef WINDOWS
 		if(std::isnan(alpha)) {
-#else
-		if(_isnan(alpha)) {
-#endif
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN();
 			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN();
 			ld->alpha_valid[i] = 0;
@@ -99,11 +95,7 @@ void filter_orientation(double theta0, double rho0, size_t n,
 	
 	*cov0_alpha	= square(dalpha_df1) * cov_f1 + square(dalpha_drho);
 
-#ifndef WINDOWS
-        if(std::isnan(*alpha)) {
-#else
-        if(_isnan(*alpha)) {
-#endif
+  if(std::isnan(*alpha)) {
 		egsl_print("Y",Y);
 		egsl_print("L",L);
 		egsl_print("R",R);

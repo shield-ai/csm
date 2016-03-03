@@ -54,13 +54,9 @@ double distance_d(const double a[2], const double b[2]) {
 }
 
 
-int is_nan(double v) {
-	return v == v ? 0 : 1;
-}
-
 int any_nan(const double *d, int n) {
 	int i; for(i=0;i<n;i++) 
-		if(is_nan(d[i]))
+		if(std::isnan(d[i]))
 			return 1;
 	return 0;
 }
@@ -181,7 +177,7 @@ int count_equal(const int*v, int n, int value) {
 }
 
 double normalize_0_2PI(double t) {
-	if(is_nan(t)) {
+	if(std::isnan(t)) {
 		sm_error("Passed NAN to normalize_0_2PI().\n");
 		return std::numeric_limits<double>::quiet_NaN();
 	}

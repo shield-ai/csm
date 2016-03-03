@@ -18,7 +18,6 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		return 0;
 	}
 		
-		
 	LDP laser_sens = params->laser_sens;
 	double x_old[3], delta[3], delta_old[3] = {0,0,0};
 	copy_d(q0, 3, x_old);
@@ -222,7 +221,7 @@ int compute_next_estimate(struct sm_params*params,
 		if(params->use_ml_weights) {
 			int have_alpha = 1;
 			double alpha = 0;
-			if(!is_nan(laser_ref->true_alpha[j1])) {
+			if(!std::isnan(laser_ref->true_alpha[j1])) {
 				alpha = laser_ref->true_alpha[j1];
 			} else if(laser_ref->alpha_valid[j1]) {
 				alpha = laser_ref->alpha[j1];;
@@ -250,7 +249,7 @@ int compute_next_estimate(struct sm_params*params,
 		
 		/* Weight the points by the sigma in laser_sens */
 		if(params->use_sigma_weights) {
-			if(!is_nan(laser_sens->readings_sigma[i])) {
+			if(!std::isnan(laser_sens->readings_sigma[i])) {
 				factor *= 1 / square(laser_sens->readings_sigma[i]);
 			} else {
 				static int warned_before = 0;

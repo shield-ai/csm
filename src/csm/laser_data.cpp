@@ -138,7 +138,7 @@ void ld_compute_world_coords(LDP ld, const double *pose) {
 		double x = points[i].p[0], 
 		       y = points[i].p[1]; 
 		
-		if(is_nan(x) || is_nan(y)) {
+		if(std::isnan(x) || std::isnan(y)) {
 			sm_error("ld_compute_world_coords(): I expected that cartesian coords were already computed: ray #%d: %f %f.\n", i, x, y);
 		}
 		
@@ -177,7 +177,7 @@ int ld_valid_fields(LDP ld)  {
 		sm_error("Invalid number of rays: %d\n", ld->nrays);
 		return 0;
 	}
-	if(is_nan(ld->min_theta) || is_nan(ld->max_theta)) {
+	if(std::isnan(ld->min_theta) || std::isnan(ld->max_theta)) {
 		sm_error("Invalid min / max theta: min_theta = %f max_theta = %f\n",
 			ld->min_theta, ld->max_theta);
 		return 0;
@@ -205,7 +205,7 @@ int ld_valid_fields(LDP ld)  {
 	int i; for(i=0;i<ld->nrays;i++) {
 		if(ld->valid[i]) {
 			double r = ld->readings[i];
-			if(is_nan(r) || is_nan(ld->theta[i])) {
+			if(std::isnan(r) || std::isnan(ld->theta[i])) {
 				sm_error("Ray #%d: r = %f  theta = %f but valid is %d\n",
 					i, r, ld->theta[i], ld->valid[i]);
 				return 0;
@@ -217,7 +217,7 @@ int ld_valid_fields(LDP ld)  {
 			}		
 		} else {
 			/* ray not valid, but checking theta anyway */
-			if(is_nan(ld->theta[i])) {
+			if(std::isnan(ld->theta[i])) {
 				sm_error("Ray #%d: valid = %d  but theta = %f\n",
 					i,  ld->valid[i], ld->theta[i]);
 				return 0;
@@ -233,7 +233,7 @@ int ld_valid_fields(LDP ld)  {
 			return 0;
 		}
 		
-		if(!is_nan(ld->readings_sigma[i]) && ld->readings_sigma[i] < 0) {
+		if(!std::isnan(ld->readings_sigma[i]) && ld->readings_sigma[i] < 0) {
 			sm_error("Ray #%d: has invalid readings_sigma %f \n", i, ld->readings_sigma[i]);
 			return 0;
 		}
