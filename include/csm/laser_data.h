@@ -28,7 +28,7 @@ struct laser_data {
 	double * restrict theta;
 	
 	int    * restrict valid;
-	double * restrict readings;
+	float  * restrict readings;
 	
 	int    * restrict cluster;
 	

@@ -32,7 +32,7 @@ void ld_alloc(LDP ld, int nrays) {
 	ld->nrays = nrays;
 	
 	ld->valid        = alloc_zero_array<int>(nrays);
-	ld->readings     = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
+	ld->readings     = alloc_array(nrays, std::numeric_limits<float>::quiet_NaN());
 	ld->readings_sigma = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	ld->theta        = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	
@@ -114,8 +114,8 @@ void ld_compute_cartesian(LDP ld) {
 	int i;
 	for(i=0;i<ld->nrays;i++) {
 /*		if(!ld_valid_ray(ld,i)) continue;*/
-		double x = cos(ld->theta[i])*ld->readings[i];
-		double y = sin(ld->theta[i])*ld->readings[i];
+		double x = std::cos(ld->theta[i])*ld->readings[i];
+		double y = std::sin(ld->theta[i])*ld->readings[i];
 		
 		ld->points[i].p[0] = x, 
 		ld->points[i].p[1] = y;
@@ -126,8 +126,8 @@ void ld_compute_cartesian(LDP ld) {
 
 
 void ld_compute_world_coords(LDP ld, const double *pose) {
-	double cos_theta = cos(pose[2]); 
-	double sin_theta = sin(pose[2]);
+	double cos_theta = std::cos(pose[2]); 
+	double sin_theta = std::sin(pose[2]);
 
 	point2d * points = ld->points;
 	point2d * points_w = ld->points_w;

@@ -106,7 +106,8 @@ void compute_covariance_exact(
 val compute_C_k(val p_j1, val p_j2)  {	
 	val d = sub(p_j1, p_j2);
 	double alpha = M_PI/2 + atan2( atv(d,1), atv(d,0));
-	double c = cos(alpha); double s = sin(alpha);
+	double c = std::cos(alpha);
+  double s = std::sin(alpha);
 	double m[2*2] = {
 		c*c, c*s,
 		c*s, s*s

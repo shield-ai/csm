@@ -8,7 +8,7 @@
 
 void find_neighbours(LDP ld, int i, int max_num, std::vector<int>& indexes, size_t*num_found);
 void filter_orientation(double theta0, double rho0, size_t n,
- 	const std::vector<double>& thetas, const std::vector<double>& rhos, double *alpha, double*cov0_alpha );
+ 	const std::vector<float>& thetas, const std::vector<float>& rhos, double *alpha, double*cov0_alpha );
 
 /** Requires the "cluster" field to be set */
 void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
@@ -33,9 +33,9 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 
 /*		printf("orientation for i=%d:\n",i); */
 		//double thetas[num_neighbours];
-		std::vector<double> thetas(num_neighbours, 0.0);
+		std::vector<float> thetas(num_neighbours, 0.0);
 		//double readings[num_neighbours];
-		std::vector<double> readings(num_neighbours, 0.0);
+		std::vector<float> readings(num_neighbours, 0.0);
 		size_t a=0; 
 		for(a=0;a<num_neighbours;a++) {
 			thetas[a] = ld->theta[neighbours[a]];
@@ -59,7 +59,7 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 /** A very cool algorithm for finding the orientation */
 
 void filter_orientation(double theta0, double rho0, size_t n,
- 	const std::vector<double>& thetas, const std::vector<double>& rhos, double *alpha, double*cov0_alpha ) {
+ 	const std::vector<float>& thetas, const std::vector<float>& rhos, double *alpha, double*cov0_alpha ) {
 	
 	egsl_push();
 	/* Y = L x + R epsilon */
@@ -82,7 +82,7 @@ void filter_orientation(double theta0, double rho0, size_t n,
 
 	*alpha = theta0 - atan(f1/rho0);
 
-	if(cos(*alpha)*cos(theta0)+sin(*alpha)*sin(theta0)>0)
+	if(std::cos(*alpha)*std::cos(theta0)+std::sin(*alpha)*std::sin(theta0)>0)
 		*alpha = *alpha + M_PI;
 	
 	double dalpha_df1  = rho0 / (square(rho0) + square(f1));

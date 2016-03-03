@@ -10,7 +10,6 @@
 #include <gsl_eigen/gsl_eigen.h>
 #include <stdio.h>
 #include <vector>
-using namespace std;
 
 
 //original version
@@ -286,8 +285,8 @@ int gpc_solve(int K, const std::vector<gpc_corr>& c,
 
 
 double gpc_error(const struct gpc_corr*co, const double*x) {
-	double c = cos(x[2]);
-	double s = sin(x[2]);
+	double c = std::cos(x[2]);
+	double s = std::sin(x[2]);
 	double e[2];
 	e[0] = c*(co->p[0]) -s*(co->p[1]) + x[0] - co->q[0];
 	e[1] = s*(co->p[0]) +c*(co->p[1]) + x[1] - co->q[1];

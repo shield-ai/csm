@@ -48,8 +48,8 @@ void vector_to_array(const gsl_vector*v, double*x){
 //}
 
 void ominus(const gsl_vector*x, gsl_vector*res) {
-	double c = cos(gvg(x,2));
-	double s = sin(gvg(x,2));
+	double c = std::cos(gvg(x,2));
+	double s = std::sin(gvg(x,2));
 	gvs(res,0,  -c*gvg(x,0)-s*gvg(x,1));
 	gvs(res,1,   s*gvg(x,0)-c*gvg(x,1));
 	gvs(res,2,  -gvg(x,2));
