@@ -4,7 +4,6 @@
 #include "icp.h"
 #include <vector>
 
-void quicksort(std::vector<double>& array, int begin, int end);
 double hoare_selection(double *data, int start, int end, int k);
 
 /** expects cartesian valid */
@@ -21,17 +20,12 @@ void visibilityTest(LDP laser_ref, const gsl_vector*u) {
 			      gvg(u,0)-laser_ref->points[j].p[0]);
 	}
 	
-	sm_debug("\tvisibility: Found outliers: ");
-	int invalid = 0;
 	for(j=1;j<laser_ref->nrays;j++) {
 		if(!ld_valid_ray(laser_ref,j)||!ld_valid_ray(laser_ref,j-1)) continue;
 		if(theta_from_u[j]<theta_from_u[j-1]) {
 			laser_ref->valid[j] = 0;
-			invalid ++;
-			sm_debug("%d ",j);
 		}
 	}
-	sm_debug("\n");
 }
 
 
@@ -43,7 +37,7 @@ void visibilityTest(LDP laser_ref, const gsl_vector*u) {
 	Modifies: laser_sens->corr
  */
 void kill_outliers_double(struct sm_params*params) {
-	double threshold = 3; /* TODO: add as configurable */
+	const double threshold = 3; /* TODO: add as configurable */
 
 	LDP laser_ref  = params->laser_ref;
 	LDP laser_sens = params->laser_sens;
@@ -51,9 +45,7 @@ void kill_outliers_double(struct sm_params*params) {
 	//double dist2_i[laser_sens->nrays];
 	std::vector<double> dist2_i(laser_sens->nrays, 0.0);
 	//double dist2_j[laser_ref->nrays];
-	std::vector<double> dist2_j(laser_ref->nrays, 0.0);
-	int j; for(j=0;j<laser_ref->nrays;j++) 
-		dist2_j[j]= 1000000;
+	std::vector<double> dist2_j(laser_ref->nrays, 1000000.);
 	
 	int i;
 	for(i=0;i<laser_sens->nrays;i++) {
@@ -63,16 +55,13 @@ void kill_outliers_double(struct sm_params*params) {
 		dist2_j[j1] = (std::min)(dist2_j[j1], dist2_i[i]);
 	}
 	
-	int nkilled = 0;
 	for(i=0;i<laser_sens->nrays;i++) {
 		if(!ld_valid_corr(laser_sens, i)) continue;
 		int j1 = laser_sens->corr[i].j1;
 		if(dist2_i[i] > (threshold*threshold)*dist2_j[j1]) {
 			laser_sens->corr[i].valid=0;
-			nkilled ++;
 		}
 	}
-	sm_debug("\tkill_outliers_double: killed %d correspondences\n",nkilled);
 }
 	
 /** 
@@ -128,7 +117,6 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 	   in ascending order */
 		//quicksort(dist2, 0, k-1);
     std::sort(dist2.begin(), dist2.begin()+k);
-		double error_limit1 = dist2[order];
 	
 		/* Then we take a order statics (o*K) */
 		/* And we say that the error must be less than alpha*dist(o*K) */
@@ -136,22 +124,9 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 			order2 = (std::max)(0, (std::min)(order2, k-1));
 		double error_limit2 = params->outliers_adaptive_mult*dist2[order2];
 	
-	double error_limit = (std::min)(error_limit1, error_limit2);
-	
-#if 0
-	double error_limit1_ho = hoare_selection(dist2_copy, 0, k-1, order);
-	double error_limit2_ho = error_limit2;
-	if((error_limit1_ho != error_limit1) || (error_limit2_ho != error_limit2)) {
-		printf("%f == %f    %f  == %f\n",
-			error_limit1_ho, error_limit1, error_limit2_ho, error_limit2);
-	}
-#endif
-
-	sm_debug("\ticp_outliers: maxPerc %f error_limit: fix %f adaptive %f \n",
-		params->outliers_maxPerc,error_limit1,error_limit2);
+	double error_limit = (std::min)(dist2[order], error_limit2);
 
 	*total_error = 0;
-	int nvalid = 0;
 	for(i=0;i<laser_sens->nrays;i++) {
 		if(!ld_valid_corr(laser_sens, i)) continue;
 		if(dist[i] > error_limit) {
@@ -159,43 +134,11 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 			laser_sens->corr[i].j1 = -1;
 			laser_sens->corr[i].j2 = -1;
 		} else {
-			nvalid++;
 			*total_error += dist[i];
 		}
 	}
 	
-	sm_debug("\ticp_outliers: valid %d/%d (limit: %f) mean error = %f \n",nvalid,k,error_limit,
-		*total_error/nvalid);	
 }
-
-
-void swap_double(double*a,double*b) {
-	double t = *a; *a = *b; *b=t;
-}
-
-/** Code taken from Wikipedia */
-void quicksort(std::vector<double>& array, int begin, int end) {
-	if (end > begin) {
-		double pivot = array[begin];
-		int l = begin + 1;
-		int r = end+1;
-		while(l < r) {
-			if (array[l] < pivot) {
-				l++;
-			} else {
-				r--;
-				swap_double(&(array[l]), &(array[r]));
-			}
-		}
-		l--;
-		swap_double(&(array[begin]), &(array[l]));
-		if(l>begin)
-		quicksort(array, begin, l);
-		if(end>r)
-		quicksort(array, r, end);
-	}
-}
-
 #if 0
 double hoare_selection(double *data, int start, int end, int k)
 {

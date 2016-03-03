@@ -26,13 +26,10 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 	std::vector<unsigned int> hashes(params->max_iterations, 0);
 	int iteration;
 	
-	sm_debug("icp: starting at  q0 =  %s  \n", friendly_pose(x_old));
-	
 	int all_is_okay = 1;
 	
 	for(iteration=0; iteration<params->max_iterations;iteration++) {
 		egsl_push_named("icp_loop iteration");
-		sm_debug("== icp_loop: starting iteration. %d  \n", iteration);
 
 		/** Compute laser_sens's points in laser_ref's coordinates
 		    by roto-translating by x_old */
@@ -73,8 +70,6 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		*total_error = error; 
 		*valid = num_corr_after;
 
-		sm_debug("  icp_loop: total error: %f  valid %d   mean = %f\n", *total_error, *valid, *total_error/ *valid);
-		
 		/* If not many correspondences, bail out */
 		if(num_corr_after < fail_perc * laser_sens->nrays){
 			sm_error("  icp_loop: failed: after trimming, only %d correspondences.\n",num_corr_after);
@@ -92,18 +87,8 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		}
 
 		pose_diff_d(x_new, x_old, delta);
-		
-		{
-			sm_debug("  icp_loop: killing. laser_sens has %d/%d rays valid,  %d corr found -> %d after double cut -> %d after adaptive cut \n", count_equal(laser_sens->valid, laser_sens->nrays, 1), laser_sens->nrays, num_corr, num_corr2, num_corr_after);
-		}
 		/** Checks for oscillations */
 		hashes[iteration] = ld_corr_hash(laser_sens);
-		
-		{
-			sm_debug("  icp_loop: it. %d  hash=%d nvalid=%d mean error = %f, x_new= %s\n", 
-				iteration, hashes[iteration], *valid, *total_error/ *valid, 
-				friendly_pose(x_new));
-		}
 
 		
 		/** PLICP terminates in a finite number of steps! */
@@ -143,8 +128,8 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 }
 
 int termination_criterion(struct sm_params*params, const double*delta){
-	double a = norm_d(delta);
-	double b = fabs(delta[2]);
+	float a = norm_d(delta);
+	float b = fabs(delta[2]);
 	return (a<params->epsilon_xy) && (b<params->epsilon_theta);
 }
 
@@ -235,14 +220,12 @@ int compute_next_estimate(struct sm_params*params,
 		/* Scale the correspondence weight by a factor concerning the 
 		   information in this reading. */
 		if(params->use_ml_weights) {
-			int have_alpha = 0;
+			int have_alpha = 1;
 			double alpha = 0;
 			if(!is_nan(laser_ref->true_alpha[j1])) {
 				alpha = laser_ref->true_alpha[j1];
-				have_alpha = 1;
 			} else if(laser_ref->alpha_valid[j1]) {
 				alpha = laser_ref->alpha[j1];;
-				have_alpha = 1;
 			} else have_alpha = 0;
 			
 			if(have_alpha) {
@@ -288,15 +271,14 @@ int compute_next_estimate(struct sm_params*params,
 	}
 	
 	/* TODO: use prior for odometry */
-	double std = 0.11;
+	float std = 0.11;
 	const double inv_cov_x0[9] = 
 		{1/(std*std), 0, 0,
 		 0, 1/(std*std), 0,
 		 0, 0, 0};
 	
 	
-	int ok = gpc_solve(k, c, 0, inv_cov_x0, x_new);
-	if(!ok) {
+	if(!gpc_solve(k, c, 0, inv_cov_x0, x_new)) {
 		sm_error("gpc_solve_valid failed\n");
 		return 0;
 	}
@@ -304,11 +286,7 @@ int compute_next_estimate(struct sm_params*params,
 	double old_error = gpc_total_error(c, k, x_old);
 	double new_error = gpc_total_error(c, k, x_new);
 
-	sm_debug("\tcompute_next_estimate: old error: %f  x_old= %s \n", old_error, friendly_pose(x_old));
-	sm_debug("\tcompute_next_estimate: new error: %f  x_new= %s \n", new_error, friendly_pose(x_new));
-	sm_debug("\tcompute_next_estimate: new error - old_error: %g \n", new_error-old_error);
-
-	double epsilon = 0.000001;
+	float epsilon = 0.000001;
 	if(new_error > old_error + epsilon) {
 		sm_error("\tcompute_next_estimate: something's fishy here! Old error: %lf  new error: %lf  x_old %lf %lf %lf x_new %lf %lf %lf\n",old_error,new_error,x_old[0],x_old[1],x_old[2],x_new[0],x_new[1],x_new[2]);
 	}
