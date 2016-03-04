@@ -32,7 +32,7 @@ void ld_alloc(LDP ld, int nrays) {
 	ld->nrays = nrays;
 	
 	ld->valid        = alloc_zero_array<int>(nrays);
-	ld->readings     = alloc_array(nrays, std::numeric_limits<float>::quiet_NaN());
+	ld->readings     = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	ld->readings_sigma = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	ld->theta        = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	
