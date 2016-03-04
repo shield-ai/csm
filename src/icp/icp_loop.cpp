@@ -59,8 +59,6 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		if(params->outliers_remove_doubles)
 			kill_outliers_double(params);
 		
-		int num_corr2 = ld_num_valid_correspondences(laser_sens);
-
 		double error=0;
 		/* Trim correspondences */
 		kill_outliers_trim(params, &error);
