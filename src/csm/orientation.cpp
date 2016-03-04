@@ -16,7 +16,9 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 	for(i=0;i<ld->nrays;i++){
 		if(!ld_valid_ray(ld,i) || (ld->cluster[i] == -1)) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#ifndef ENABLE_OPTIMIZATION
 			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#endif
 			ld->alpha_valid[i] = 0;
 			continue;
 		}
@@ -28,7 +30,9 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 
 		if(0==num_neighbours) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#ifndef ENABLE_OPTIMIZATION
 			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#endif
 			ld->alpha_valid[i] = 0;
 			continue;
 		}
@@ -54,14 +58,17 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 		if(_isnan(alpha)) {
 #endif
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN();
+#ifndef ENABLE_OPTIMIZATION
 			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN();
+#endif
 			ld->alpha_valid[i] = 0;
 		} else {  
 			ld->alpha[i] = alpha;
+#ifndef ENABLE_OPTIMIZATION
 			ld->cov_alpha[i] = cov0_alpha * square(sigma);
+#endif
 			ld->alpha_valid[i] = 1;
 		}
-		/* printf("---------- i = %d alpha = %f sigma=%f cov_alpha = %f\n", i, alpha, ld->cov_alpha[i]);*/
 	}
 }
 
@@ -91,7 +98,7 @@ void filter_orientation(double theta0, double rho0, size_t n,
 
 	*alpha = theta0 - atan(f1/rho0);
 
-	if(cos(*alpha)*cos(theta0)+sin(*alpha)*sin(theta0)>0)
+	if(std::cos(*alpha)*std::cos(theta0)+std::sin(*alpha)*std::sin(theta0)>0)
 		*alpha = *alpha + M_PI;
 	
 	double dalpha_df1  = rho0 / (square(rho0) + square(f1));
@@ -119,7 +126,6 @@ void filter_orientation(double theta0, double rho0, size_t n,
 	egsl_pop();
 /*
 //	printf("dalpha_df1 = %f dalpha_drho = %f\n",dalpha_df1,dalpha_drho);
-//	printf("f1 = %f covf1 = %f alpha = %f cov_alpha = %f\n ",f1,cov_f1,*alpha,*cov0_alpha);
 //	printf("sotto = %f\n ",(square(rho0) + square(f1)));
 	
 //	printf("   alpha = %f sigma= %f°\n", *alpha, rad2deg(0.01*sqrt(*cov0_alpha)));

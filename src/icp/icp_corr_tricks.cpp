@@ -13,7 +13,6 @@ INLINE double mysin(double x) {
 	return x * (.99 + x2 * ( a + b * x2));
 }
 
-
 #define DEBUG_SEARCH(a) ;
 
 void ld_create_jump_tables(struct laser_data* ld) {
@@ -39,16 +38,11 @@ void ld_create_jump_tables(struct laser_data* ld) {
 	}	
 }
 
-extern int distance_counter;
-
 INLINE double local_distance_squared_d(const double* a, const double* b)  {
-	distance_counter++;
 	double x = a[0] - b[0];
 	double y = a[1] - b[1];
 	return x*x + y*y;
 }
-
-#define SQUARE(a) ((a)*(a))
 
 /* Assumes that points_w is filled.  */
 void find_correspondences_tricks(struct sm_params*params) {
@@ -100,19 +94,20 @@ void find_correspondences_tricks(struct sm_params*params) {
 
 		int up_stopped = 0; 
 		int down_stopped = 0;
+        
+        /*
+        DEBUG_SEARCH(printf("i=%d p_i_w = %f %f\n",i, p_i_w[0], p_i_w,[1]));
+        DEBUG_SEARCH(printf("i=%d [from %d down %d mid %d up %d to %d]\n",
+                i,from,down,start_cell,up,to));
+         */
 	
-		DEBUG_SEARCH(printf("i=%d p_i_w = %f %f\n",i, p_i_w[0], p_i_w,[1]));
-		DEBUG_SEARCH(printf("i=%d [from %d down %d mid %d up %d to %d]\n",
-			i,from,down,start_cell,up,to));
-		
 		while ( (!up_stopped) || (!down_stopped) ) {
 			int now_up = up_stopped ? 0 : 
 			           down_stopped ? 1 : last_dist_up < last_dist_down;
-			DEBUG_SEARCH(printf("|"));
+            //DEBUG_SEARCH(printf("|"));
 
 			/* Now two symmetric chunks of code, the now_up and the !now_up */
 			if(now_up) {
-				DEBUG_SEARCH(printf("up %d ",up));
 				/* If we have crossed the "to" boundary we stop searching
 					on the "up" direction. */
 				if(up > to) { 
@@ -139,7 +134,7 @@ void find_correspondences_tricks(struct sm_params*params) {
 						((delta_theta > M_PI*0.5) ? 1 : mysin(delta_theta));
 					/* If going up we can't make better than best_dist, then
 					    we stop searching in the "up" direction */
-					if(SQUARE(min_dist_up) > best_dist) { 
+					if(square(min_dist_up) > best_dist) { 
 						up_stopped = 1; continue;
 					}
 					/* If we are moving away, then we can implement the jump tables
@@ -161,7 +156,7 @@ void find_correspondences_tricks(struct sm_params*params) {
 			
 			/* This is the specular part of the previous chunk of code. */
 			if(!now_up) {
-				DEBUG_SEARCH(printf("down %d ",down));
+                //DEBUG_SEARCH(printf("down %d ",down));
 				if(down < from) { 
 					down_stopped = 1; continue; }
 				if(!laser_ref->valid[down]) { 
@@ -175,7 +170,7 @@ void find_correspondences_tricks(struct sm_params*params) {
 					double delta_theta = (p_i_w_phi - laser_ref->theta[down]);
 					double min_dist_down = p_i_w_nrm2 * 
 						((delta_theta > M_PI*0.5) ? 1 : mysin(delta_theta));
-					if( SQUARE(min_dist_down) > best_dist) { 
+					if( square(min_dist_down) > best_dist) { 
 						down_stopped = 1; continue;
 					}
 					down += (laser_ref->readings[down] < p_i_w_nrm2) ?
@@ -184,8 +179,8 @@ void find_correspondences_tricks(struct sm_params*params) {
 			}
 			
 		}
-		
-		DEBUG_SEARCH(printf("i=%d j1=%d dist=%f\n",i,j1,best_dist));
+
+        //DEBUG_SEARCH(printf("i=%d j1=%d dist=%f\n",i,j1,best_dist));
 		
 		/* If no point matched. */
 		if( (-1==j1) || (best_dist > max_correspondence_dist2) ) {

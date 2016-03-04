@@ -6,7 +6,9 @@
 
 #include "logging.h"
 #include "csm_all.h"
+#ifndef ENABLE_OPTIMIZATION
 #include "utils.h"
+#endif
 
 
 int sm_debug_write_flag = 0;
@@ -17,11 +19,13 @@ void sm_debug_write(int flag) {
 	sm_debug_write_flag = flag;
 }
 
+#ifndef ENABLE_OPTIMIZATION
 char sm_program_name_temp[256];
 void sm_set_program_name(const char*name) {
 	my_basename_no_suffix(name, sm_program_name_temp);
 	sm_program_name = sm_program_name_temp;
 }
+#endif
 
 int checked_for_xterm_color = 0;
 int xterm_color_available = 0;
@@ -85,6 +89,7 @@ void sm_info(const char *msg, ...)
 	vfprintf(stderr, msg, ap);
 }
 
+#ifndef ENABLE_OPTIMIZATION
 void sm_debug(const char *msg, ...)
 {
 	if(!sm_debug_write_flag) return;
@@ -110,6 +115,7 @@ void sm_debug(const char *msg, ...)
 	if(xterm_color_available)
 		fprintf(stderr, XTERM_COLOR_RESET);
 }
+#endif
 
 #define MAX_CONTEXTS 1000
 const char * sm_log_context_name[MAX_CONTEXTS] = {""};

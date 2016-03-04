@@ -5,7 +5,7 @@ PROJECT(csm_eigen)
 ADD_SUBDIRECTORY(src)
 
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS include ${CATKIN_DEVEL_PREFIX}/include/csm_eigen
   LIBRARIES csm_eigen
   DEPENDS Eigen3
 )

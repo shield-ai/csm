@@ -4,9 +4,6 @@
 
 #include "csm_all.h"
 
-double* alloc_double_array(int n, double def);
-int* alloc_int_array(int n, int def);
-
 /* -------------------------------------------------- */
 
 LDP ld_alloc_new(int nrays) {
@@ -15,44 +12,43 @@ LDP ld_alloc_new(int nrays) {
 	return ld;
 }
 
-double* alloc_double_array(int n, double def) {
-	double *v = (double*) malloc(sizeof(double)*n);
-	int i=0; for(i=0;i<n;i++) {
-		v[i] = def;
-	}
-	return v;
+template <typename T>
+T* alloc_array(int n, T def) {
+  T *v = (T*) malloc(sizeof(T)*n);
+  for (int i=0; i<n; ++i) {
+    v[i] = def;
+  }
+  return v;
 }
 
-int* alloc_int_array(int n, int def) {
-	int *v = (int*) malloc(sizeof(int)*n);
-	int i=0; for(i=0;i<n;i++) {
-		v[i] = def;
-	}
-	return v;
+template <typename T>
+T* alloc_zero_array(int n) {
+  T *v = (T*) malloc(sizeof(T)*n);
+  memset(v, 0, (sizeof(T)*n));
+  return v;
 }
 
 void ld_alloc(LDP ld, int nrays) {
 	ld->nrays = nrays;
 	
-	ld->valid        = alloc_int_array(nrays, 0);
-	ld->readings     = alloc_double_array(nrays, std::numeric_limits<double>::quiet_NaN());
-	ld->readings_sigma = alloc_double_array(nrays, std::numeric_limits<double>::quiet_NaN());
-	ld->theta        = alloc_double_array(nrays, std::numeric_limits<double>::quiet_NaN());
+	ld->valid        = alloc_zero_array<int>(nrays);
+	ld->readings     = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
+	ld->readings_sigma = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
+	ld->theta        = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	
 	ld->min_theta = std::numeric_limits<double>::quiet_NaN();
 	ld->max_theta = std::numeric_limits<double>::quiet_NaN();
 	
-	ld->cluster      = alloc_int_array(nrays, -1);
-	ld->alpha        = alloc_double_array(nrays, std::numeric_limits<double>::quiet_NaN());
-	ld->cov_alpha    = alloc_double_array(nrays, std::numeric_limits<double>::quiet_NaN());
-	ld->alpha_valid  = alloc_int_array(nrays, 0);
+	ld->cluster      = alloc_array(nrays, -1);
+	ld->alpha        = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
+	ld->alpha_valid  = alloc_zero_array<int>(nrays);
 
-	ld->true_alpha   = alloc_double_array(nrays, std::numeric_limits<double>::quiet_NaN());
+	ld->true_alpha   = alloc_array(nrays, std::numeric_limits<double>::quiet_NaN());
 	
-	ld->up_bigger    = alloc_int_array(nrays, 0);
-	ld->up_smaller   = alloc_int_array(nrays, 0);
-	ld->down_bigger  = alloc_int_array(nrays, 0);
-	ld->down_smaller = alloc_int_array(nrays, 0);
+	ld->up_bigger    = alloc_zero_array<int>(nrays);
+	ld->up_smaller   = alloc_zero_array<int>(nrays);
+	ld->down_bigger  = alloc_zero_array<int>(nrays);
+	ld->down_smaller = alloc_zero_array<int>(nrays);
 
 	ld->corr = (struct correspondence*) 
 		malloc(sizeof(struct correspondence)*nrays);
@@ -98,7 +94,6 @@ void ld_dealloc(struct laser_data*ld){
 	free(ld->alpha);
 	free(ld->alpha_valid);
 	free(ld->true_alpha);
-	free(ld->cov_alpha);
 	free(ld->up_bigger);
 	free(ld->up_smaller);
 	free(ld->down_bigger);
@@ -119,8 +114,8 @@ void ld_compute_cartesian(LDP ld) {
 	int i;
 	for(i=0;i<ld->nrays;i++) {
 /*		if(!ld_valid_ray(ld,i)) continue;*/
-		double x = cos(ld->theta[i])*ld->readings[i];
-		double y = sin(ld->theta[i])*ld->readings[i];
+		double x = std::cos(ld->theta[i])*ld->readings[i];
+		double y = std::sin(ld->theta[i])*ld->readings[i];
 		
 		ld->points[i].p[0] = x, 
 		ld->points[i].p[1] = y;
@@ -131,36 +126,28 @@ void ld_compute_cartesian(LDP ld) {
 
 
 void ld_compute_world_coords(LDP ld, const double *pose) {
-	double pose_x = pose[0];
-	double pose_y = pose[1];
-	double pose_theta = pose[2];
-	double cos_theta = cos(pose_theta); 
-	double sin_theta = sin(pose_theta);
-	const int nrays = ld->nrays ;
+	double cos_theta = std::cos(pose[2]); 
+	double sin_theta = std::sin(pose[2]);
 
 	point2d * points = ld->points;
 	point2d * points_w = ld->points_w;
-	int i; for(i=0;i<nrays;i++) {
+	for(int i=0;i<ld->nrays;i++) {
 		if(!ld_valid_ray(ld,i)) continue;
-		double x0 = points[i].p[0], 
-		       y0 = points[i].p[1]; 
+		double x = points[i].p[0], 
+		       y = points[i].p[1]; 
 		
-		if(is_nan(x0) || is_nan(y0)) {
-			sm_error("ld_compute_world_coords(): I expected that cartesian coords were already computed: ray #%d: %f %f.\n", i, x0, y0);
+		if(std::isnan(x) || std::isnan(y)) {
+			sm_error("ld_compute_world_coords(): I expected that cartesian coords were already computed: ray #%d: %f %f.\n", i, x, y);
 		}
 		
-		points_w[i].p[0] = cos_theta * x0 -sin_theta*y0 + pose_x;
-		points_w[i].p[1] = sin_theta * x0 +cos_theta*y0 + pose_y;
+		points_w[i].p[0] = cos_theta * x -sin_theta*y + pose[0];
+		points_w[i].p[1] = sin_theta * x +cos_theta*y + pose[1];
 		/* polar coordinates */
-	}
-	
-	for(i=0;i<nrays;i++) {
-		double x = points_w[i].p[0];
-		double y = points_w[i].p[1];
+		x = points_w[i].p[0];
+		y = points_w[i].p[1];
 		points_w[i].rho = sqrt( x*x+y*y);
 		points_w[i].phi = atan2(y, x);
 	}
-	
 }
 
 
@@ -182,19 +169,19 @@ int ld_valid_fields(LDP ld)  {
 		return 0;
 	}
 	
-	int min_nrays = 10;
-	int max_nrays = 10000;
+	const int min_nrays = 10;
+	const int max_nrays = 10000;
 	if(ld->nrays < min_nrays || ld->nrays > max_nrays) {
 		sm_error("Invalid number of rays: %d\n", ld->nrays);
 		return 0;
 	}
-	if(is_nan(ld->min_theta) || is_nan(ld->max_theta)) {
+	if(std::isnan(ld->min_theta) || std::isnan(ld->max_theta)) {
 		sm_error("Invalid min / max theta: min_theta = %f max_theta = %f\n",
 			ld->min_theta, ld->max_theta);
 		return 0;
 	}
-	double min_fov = deg2rad(20.0); 
-	double max_fov = 2.01 * M_PI;
+	const double min_fov = deg2rad(20.0); 
+	const double max_fov = 2.01 * M_PI;
 	double fov = ld->max_theta - ld->min_theta;
 	if( fov < min_fov || fov > max_fov) {
 		sm_error("Strange FOV: %f rad = %f deg \n", fov, rad2deg(fov));
@@ -211,15 +198,14 @@ int ld_valid_fields(LDP ld)  {
 		return 0;
 	}
 	/* Check that there are valid rays */
-	double min_reading = 0;
-	double max_reading = 100;
+	const double min_reading = 0;
+	const double max_reading = 100;
 	int i; for(i=0;i<ld->nrays;i++) {
-		double th = ld->theta[i];
 		if(ld->valid[i]) {
 			double r = ld->readings[i];
-			if(is_nan(r) || is_nan(th)) {
+			if(std::isnan(r) || std::isnan(ld->theta[i])) {
 				sm_error("Ray #%d: r = %f  theta = %f but valid is %d\n",
-					i, r, th, ld->valid[i]);
+					i, r, ld->theta[i], ld->valid[i]);
 				return 0;
 			}
 			if( !( min_reading < r && r < max_reading ) ) {
@@ -229,9 +215,9 @@ int ld_valid_fields(LDP ld)  {
 			}		
 		} else {
 			/* ray not valid, but checking theta anyway */
-			if(is_nan(th)) {
+			if(std::isnan(ld->theta[i])) {
 				sm_error("Ray #%d: valid = %d  but theta = %f\n",
-					i,  ld->valid[i], th);
+					i,  ld->valid[i], ld->theta[i]);
 				return 0;
 			}
 
@@ -245,7 +231,7 @@ int ld_valid_fields(LDP ld)  {
 			return 0;
 		}
 		
-		if(!is_nan(ld->readings_sigma[i]) && ld->readings_sigma[i] < 0) {
+		if(!std::isnan(ld->readings_sigma[i]) && ld->readings_sigma[i] < 0) {
 			sm_error("Ray #%d: has invalid readings_sigma %f \n", i, ld->readings_sigma[i]);
 			return 0;
 		}
@@ -253,8 +239,8 @@ int ld_valid_fields(LDP ld)  {
 	}
 	/* Checks that there is at least 10% valid rays */
 	int num_valid   = count_equal(ld->valid, ld->nrays, 1);
-	int num_invalid = count_equal(ld->valid, ld->nrays, 0);
 	if (num_valid < ld->nrays * 0.10) {
+    int num_invalid = count_equal(ld->valid, ld->nrays, 0);
 		sm_error("Valid: %d/%d invalid: %d.\n", num_valid, ld->nrays, num_invalid);
 		return 0;
 	}

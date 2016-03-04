@@ -11,21 +11,12 @@
 
 #include "icp.h"
 
-
+#ifndef ENABLE_OPTIMIZATION
 void sm_journal_open(const char* file) {
 	file = 0; (void) file;
 /*	journal_open(file);*/
 }
-
-void ld_invalid_if_outside(LDP ld, double min_reading, double max_reading) {
-	int i;
-	for(i=0;i<ld->nrays;i++) {
-		if(!ld_valid_ray(ld, i)) continue;
-		double r = ld->readings[i];
-		if( r <= min_reading || r > max_reading)
-			ld->valid[i] = 0;
-	}
-}
+#endif
 
 void sm_icp(struct sm_params*params, struct sm_result*res) {
 	res->valid = 0;
@@ -37,20 +28,19 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 	   !ld_valid_fields(laser_sens)) {
 		return;
 	}
-	
-	sm_debug("sm_icp: laser_sens has %d/%d; laser_ref has %d/%d rays valid\n",
-		count_equal(laser_sens->valid, laser_sens->nrays, 1), laser_sens->nrays,
-		count_equal(laser_ref->valid, laser_ref->nrays, 1), laser_ref->nrays);
-	
+
+    sm_debug("sm_icp: laser_sens has %d/%d; laser_ref has %d/%d rays valid\n",
+             count_equal(laser_sens->valid, laser_sens->nrays, 1), laser_sens->nrays,
+             count_equal(laser_ref->valid, laser_ref->nrays, 1), laser_ref->nrays);
 	
 	/** Mark as invalid the rays outside of (min_reading, max_reading] */
 	ld_invalid_if_outside(laser_ref, params->min_reading, params->max_reading);
 	ld_invalid_if_outside(laser_sens, params->min_reading, params->max_reading);
-	
-	sm_debug("sm_icp:  laser_sens has %d/%d; laser_ref has %d/%d rays valid (after removing outside interval [%f, %f])\n",
-		count_equal(laser_sens->valid, laser_sens->nrays, 1), laser_sens->nrays,
-		count_equal(laser_ref->valid, laser_ref->nrays, 1), laser_ref->nrays,
-   	   params->min_reading, params->max_reading);
+
+    sm_debug("sm_icp:  laser_sens has %d/%d; laser_ref has %d/%d rays valid (after removing outside interval [%f, %f])\n",
+             count_equal(laser_sens->valid, laser_sens->nrays, 1), laser_sens->nrays,
+             count_equal(laser_ref->valid, laser_ref->nrays, 1), laser_ref->nrays,
+             params->min_reading, params->max_reading);
 	
 	egsl_push_named("sm_icp");
 	
@@ -72,10 +62,10 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 	gsl_vector * x_old = vector_from_array(3, params->first_guess);
 	
 	if(params->do_visibility_test) {
-		sm_debug("laser_ref:\n");
+    sm_debug("laser_ref:\n");
 		visibilityTest(laser_ref, x_old);
 
-		sm_debug("laser_sens:\n");
+    sm_debug("laser_sens:\n");
 		gsl_vector * minus_x_old = gsl_vector_alloc(3);
 		ominus(x_old,minus_x_old);
 		visibilityTest(laser_sens, minus_x_old);
@@ -99,10 +89,10 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 
 		if(params->restart && 
 			(error/nvalid)>(params->restart_threshold_mean_error) ) {
-			sm_debug("Restarting: %f > %f \n",(error/nvalid),(params->restart_threshold_mean_error));
+      sm_debug("Restarting: %f > %f \n",(error/nvalid),(params->restart_threshold_mean_error));
 			double dt  = params->restart_dt;
 			double dth = params->restart_dtheta;
-			sm_debug("icp_loop: dt = %f dtheta= %f deg\n",dt,rad2deg(dth));
+      sm_debug("icp_loop: dt = %f dtheta= %f deg\n",dt,rad2deg(dth));
 		
 			double perturb[6][3] = {
 				{dt,0,0}, {-dt,0,0},
@@ -111,22 +101,21 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 			};
 
 			int a; for(a=0;a<6;a++){
-				sm_debug("-- Restarting with perturbation #%d\n", a);
-				struct sm_params my_params = *params;
+        sm_debug("-- Restarting with perturbation #%d\n", a);
 				gsl_vector * start = gsl_vector_alloc(3);
 					gvs(start, 0, gvg(x_new,0)+perturb[a][0]);
 					gvs(start, 1, gvg(x_new,1)+perturb[a][1]);
 					gvs(start, 2, gvg(x_new,2)+perturb[a][2]);
 				gsl_vector * x_a = gsl_vector_alloc(3);
 				double my_error; int my_valid; int my_iterations;
-				if(!icp_loop(&my_params, start->data(), x_a->data(), &my_error, &my_valid, &my_iterations)){
+				if(!icp_loop(params, start->data(), x_a->data(), &my_error, &my_valid, &my_iterations)){
 					sm_error("Error during restart #%d/%d. \n", a, 6);
 					break;
 				}
 				iterations+=my_iterations;
 		
 				if(my_error < best_error) {
-					sm_debug("--Perturbation #%d resulted in error %f < %f\n", a,my_error,best_error);
+          sm_debug("--Perturbation #%d resulted in error %f < %f\n", a,my_error,best_error);
 					gsl_vector_memcpy(best_x, x_a);
 					best_error = my_error;
 				}
@@ -138,7 +127,7 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 		/* At last, we did it. */
 		res->valid = 1;
 		vector_to_array(best_x, res->x);
-		sm_debug("icp: final x =  %s  \n", gsl_friendly_pose(best_x));
+    sm_debug("icp: final x =  %s  \n", gsl_friendly_pose(best_x));
 	
 	
 		if(params->do_compute_covariance)  {

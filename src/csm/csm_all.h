@@ -9,6 +9,7 @@ namespace CSM {}
 #endif
 
 //#include "json_journal.h"
+#include <csm/flags.h>
 #include "logging.h"
 #include "math_utils.h"
 #include "math_utils_gsl.h"

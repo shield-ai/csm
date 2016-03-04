@@ -106,7 +106,8 @@ void compute_covariance_exact(
 val compute_C_k(val p_j1, val p_j2)  {	
 	val d = sub(p_j1, p_j2);
 	double alpha = M_PI/2 + atan2( atv(d,1), atv(d,0));
-	double c = cos(alpha); double s = sin(alpha);
+	double c = std::cos(alpha);
+	double s = std::sin(alpha);
 	double m[2*2] = {
 		c*c, c*s,
 		c*s, s*s
@@ -116,7 +117,7 @@ val compute_C_k(val p_j1, val p_j2)  {
 
 
 val dC_drho(val p1, val p2) {
-	double eps = 0.001;
+	const double eps = 0.001;
 
 	val C_k = compute_C_k(p1, p2);	
 	val p1b = sum(p1, sc(eps/egsl_norm(p1),p1));

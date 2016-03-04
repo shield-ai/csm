@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 
+#include <csm/flags.h>
 #include "restrict.h"
 
 struct correspondence;
@@ -33,7 +34,9 @@ struct laser_data {
 	int    * restrict cluster;
 	
 	double * restrict alpha;
+#ifndef ENABLE_OPTIMIZATION
 	double * restrict cov_alpha;
+#endif
 	int    * restrict alpha_valid;
 
 	double * restrict readings_sigma;
@@ -116,9 +119,7 @@ void ld_simple_clustering(LDP ld, double threshold);
 /** A cool orientation estimation algorithm. Needs cluster. */
 void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma);
 
-
-
-
+#ifndef ENABLE_OPTIMIZATION
 /** 
 	Tries to read a laser scan from file. If error or EOF, it returns 0.
 	Whitespace is skipped. If first valid char is '{', it tries to read 
@@ -153,7 +154,7 @@ void ld_write_as_carmen(LDP ld, FILE * stream);
 
 /** Write a scan according to out_format = {"carmen", "json"} */
 void ld_write_format(LDP ld, FILE*stream, const char * out_format);
-
+#endif
 
 void possible_interval(
 	const double *p_i_w, LDP laser_sens, 

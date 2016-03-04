@@ -1,11 +1,17 @@
 #ifndef SM_LOGGING_H
 #define SM_LOGGING_H
 
+#include <csm/flags.h>
+
 extern const char * sm_program_name;
 
+#ifdef ENABLE_OPTIMIZATION
 void sm_set_program_name(const char*);
 
+#define sm_debug(_1, ...)
+#else
 void sm_debug(const char *msg, ...);
+#endif
 void sm_error(const char *msg, ...);
 void sm_info(const char *msg, ...);
 

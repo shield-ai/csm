@@ -4,10 +4,11 @@
 using namespace std;
 
 val egsl_rot(double theta) {
-	double R[2*2] = {
-		cos(theta), -sin(theta),
-		sin(theta),  cos(theta)
-	};
+	double R[2*2] = {};
+  R[0] = std::cos(theta);
+  R[2] = std::sin(theta);
+  R[1] = -R[2];
+  R[3] = R[0];
 	return egsl_vFda(2,2,R);
 }
 
@@ -26,7 +27,7 @@ val egsl_ones(size_t rows, size_t columns) {
 }
 
 val egsl_vers(double theta){
-	double v[2] = { cos(theta), sin(theta)};
+	double v[2] = { std::cos(theta), std::sin(theta)};
 	return egsl_vFa(2,v);
 }
 
