@@ -34,7 +34,9 @@ SET(CSM_SRC
   csm/laser_data.cpp
   csm/math_utils.cpp
   csm/math_utils_gsl.cpp
+# csm/utils.cpp
   csm/logging.cpp
+# csm/sm_options.cpp
   csm/orientation.cpp
   csm/clustering.cpp)
 
