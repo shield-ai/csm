@@ -13,6 +13,7 @@ INLINE double mysin(double x) {
 	return x * (.99 + x2 * ( a + b * x2));
 }
 
+#define DEBUG_SEARCH(a) ;
 
 void ld_create_jump_tables(struct laser_data* ld) {
 	int i;
@@ -93,10 +94,17 @@ void find_correspondences_tricks(struct sm_params*params) {
 
 		int up_stopped = 0; 
 		int down_stopped = 0;
+        
+        /*
+        DEBUG_SEARCH(printf("i=%d p_i_w = %f %f\n",i, p_i_w[0], p_i_w,[1]));
+        DEBUG_SEARCH(printf("i=%d [from %d down %d mid %d up %d to %d]\n",
+                i,from,down,start_cell,up,to));
+         */
 	
 		while ( (!up_stopped) || (!down_stopped) ) {
 			int now_up = up_stopped ? 0 : 
 			           down_stopped ? 1 : last_dist_up < last_dist_down;
+            //DEBUG_SEARCH(printf("|"));
 
 			/* Now two symmetric chunks of code, the now_up and the !now_up */
 			if(now_up) {
@@ -148,6 +156,7 @@ void find_correspondences_tricks(struct sm_params*params) {
 			
 			/* This is the specular part of the previous chunk of code. */
 			if(!now_up) {
+                //DEBUG_SEARCH(printf("down %d ",down));
 				if(down < from) { 
 					down_stopped = 1; continue; }
 				if(!laser_ref->valid[down]) { 
@@ -170,6 +179,8 @@ void find_correspondences_tricks(struct sm_params*params) {
 			}
 			
 		}
+
+        //DEBUG_SEARCH(printf("i=%d j1=%d dist=%f\n",i,j1,best_dist));
 		
 		/* If no point matched. */
 		if( (-1==j1) || (best_dist > max_correspondence_dist2) ) {

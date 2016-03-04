@@ -24,11 +24,14 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 	//unsigned int hashes[params->max_iterations];
 	std::vector<unsigned int> hashes(params->max_iterations, 0);
 	int iteration;
+
+    //sm_debug("icp: starting at  q0 =  %s  \n", friendly_pose(x_old));
 	
 	int all_is_okay = 1;
 	
 	for(iteration=0; iteration<params->max_iterations;iteration++) {
 		egsl_push_named("icp_loop iteration");
+        //sm_debug("== icp_loop: starting iteration. %d  \n", iteration);
 
 		/** Compute laser_sens's points in laser_ref's coordinates
 		    by roto-translating by x_old */
@@ -58,6 +61,8 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		/* Kill some correspondences (using dubious algorithm) */
 		if(params->outliers_remove_doubles)
 			kill_outliers_double(params);
+
+        //int num_corr2 = ld_num_valid_correspondences(laser_sens);
 		
 		double error=0;
 		/* Trim correspondences */
@@ -66,6 +71,8 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		
 		*total_error = error; 
 		*valid = num_corr_after;
+
+        //sm_debug("  icp_loop: total error: %f  valid %d   mean = %f\n", *total_error, *valid, *total_error/ *valid);
 
 		/* If not many correspondences, bail out */
 		if(num_corr_after < fail_perc * laser_sens->nrays){
@@ -84,8 +91,15 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 		}
 
 		pose_diff_d(x_new, x_old, delta);
+
+        {
+            //sm_debug("  icp_loop: killing. laser_sens has %d/%d rays valid,  %d corr found -> %d after double cut -> %d after adaptive cut \n", count_equal(laser_sens->valid, laser_sens->nrays, 1), laser_sens->nrays, num_corr, num_corr2, num_corr_after);
+        }
 		/** Checks for oscillations */
 		hashes[iteration] = ld_corr_hash(laser_sens);
+        {
+            //sm_debug("  icp_loop: it. %d  hash=%d nvalid=%d mean error = %f, x_new= %s\n", iteration, hashes[iteration], *valid, *total_error/ *valid, friendly_pose(x_new));
+        }
 
 		
 		/** PLICP terminates in a finite number of steps! */
@@ -282,6 +296,12 @@ int compute_next_estimate(struct sm_params*params,
 
 	double old_error = gpc_total_error(c, k, x_old);
 	double new_error = gpc_total_error(c, k, x_new);
+
+    /*
+    sm_debug("\tcompute_next_estimate: old error: %f  x_old= %s \n", old_error, friendly_pose(x_old));
+    sm_debug("\tcompute_next_estimate: new error: %f  x_new= %s \n", new_error, friendly_pose(x_new));
+    sm_debug("\tcompute_next_estimate: new error - old_error: %g \n", new_error-old_error);
+    */
 
 	float epsilon = 0.000001;
 	if(new_error > old_error + epsilon) {

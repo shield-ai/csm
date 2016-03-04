@@ -31,6 +31,7 @@ void find_correspondences(struct sm_params*params) {
 	int i;
 	for(i=0;i<laser_sens->nrays;i++) {
 		if(!ld_valid_ray(laser_sens,i)) {
+/*          sm_debug("dumb: i %d is invalid \n", i);*/
 			ld_set_null_correspondence(laser_sens, i);
 			continue; 
 		}
@@ -44,12 +45,15 @@ void find_correspondences(struct sm_params*params) {
 		possible_interval(p_i_w, laser_ref, params->max_angular_correction_deg,
 			params->max_linear_correction, &from, &to, &start_cell);
 
+/*     sm_debug("dumb: i %d from  %d to %d \n", i, from, to); */
 		int j;
 		for(j=from;j<=to;j++) {
 			if(!ld_valid_ray(laser_ref,j)) {
+/*              sm_debug("dumb: i %d      j %d invalid\n", i, j);*/
 				continue;
 			}
 			double dist = distance_squared_d(p_i_w, laser_ref->points[j].p);
+/*          sm_debug("dumb: i %d j1 %d j %d d %f\n", i,j1,j,dist);*/ 
 			if(dist>square(params->max_correspondence_dist)) continue;
 			
 			if( (-1 == j1) || (dist < best_dist) ) {

@@ -20,12 +20,15 @@ void visibilityTest(LDP laser_ref, const gsl_vector*u) {
 			      gvg(u,0)-laser_ref->points[j].p[0]);
 	}
 	
+    //sm_debug("\tvisibility: Found outliers: ");
 	for(j=1;j<laser_ref->nrays;j++) {
 		if(!ld_valid_ray(laser_ref,j)||!ld_valid_ray(laser_ref,j-1)) continue;
 		if(theta_from_u[j]<theta_from_u[j-1]) {
 			laser_ref->valid[j] = 0;
+            //sm_debug("%d ",j);
 		}
 	}
+    //sm_debug("\n");
 }
 
 
@@ -55,13 +58,16 @@ void kill_outliers_double(struct sm_params*params) {
 		dist2_j[j1] = (std::min)(dist2_j[j1], dist2_i[i]);
 	}
 	
+    //int i;
 	for(i=0;i<laser_sens->nrays;i++) {
 		if(!ld_valid_corr(laser_sens, i)) continue;
 		int j1 = laser_sens->corr[i].j1;
 		if(dist2_i[i] > (threshold*threshold)*dist2_j[j1]) {
 			laser_sens->corr[i].valid=0;
+            //nkilled++;
 		}
 	}
+    //sm_debug("\tkill_outliers_double: killed %d correspondences\n",nkilled);
 }
 	
 /** 
@@ -115,7 +121,6 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 
 	/* The dists for the correspondence are sorted
 	   in ascending order */
-		//quicksort(dist2, 0, k-1);
     std::sort(dist2.begin(), dist2.begin()+k);
 	
 		/* Then we take a order statics (o*K) */
@@ -126,7 +131,23 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 	
 	double error_limit = (std::min)(dist2[order], error_limit2);
 
+#if 0
+  double error_limit1_ho = hoare_selection(dist2_copy, 0, k-1, order);
+  double error_limit2_ho = error_limit2;
+  if((error_limit1_ho != error_limit1) || (error_limit2_ho != error_limit2)) {
+    printf("%f == %f    %f  == %f\n",
+        error_limit1_ho, error_limit1, error_limit2_ho, error_limit2);
+  }
+#endif
+
+  /*
+  sm_debug("\ticp_outliers: maxPerc %f error_limit: fix %f adaptive %f \n",
+      params->outliers_maxPerc,error_limit1,error_limit2);
+  */
+
+
 	*total_error = 0;
+    //int nvalid = 0;
 	for(i=0;i<laser_sens->nrays;i++) {
 		if(!ld_valid_corr(laser_sens, i)) continue;
 		if(dist[i] > error_limit) {
@@ -135,9 +156,10 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 			laser_sens->corr[i].j2 = -1;
 		} else {
 			*total_error += dist[i];
+            //nvalid++;
 		}
 	}
-	
+    //sm_debug("\ticp_outliers: valid %d/%d (limit: %f) mean error = %f \n",nvalid,k,error_limit, *total_error/nvalid);
 }
 #if 0
 double hoare_selection(double *data, int start, int end, int k)
