@@ -57,9 +57,14 @@ SET(ICP_SRC
   icp/icp_loop.cpp
   icp/icp_outliers.cpp)
 
+#SET(OPTIONS_SRC  
+#   options/options.cpp
+#   options/options_interface.cpp)
+
 ADD_LIBRARY(csm_eigen
 	${CSM_SRC}
 	${EGSL_SRC} 
 	${GPC_SRC}
+    #${OPTIONS_SRC}
 	${ICP_SRC})
 
