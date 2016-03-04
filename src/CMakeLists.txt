@@ -31,11 +31,9 @@ IF (ENABLE_C11)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
 
-IF (ENABLE_OPTIMIZATION)
-    CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/csm/flags.h.in"
-                   "${PROJECT_BINARY_DIR}/csm/flags.h")
-    INCLUDE_DIRECTORIES("${PROJECT_BINARY_DIR}")
-ENDIF()
+CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/csm/flags.h.in"
+               "${CATKIN_DEVEL_PREFIX}/include/csm_eigen/csm/flags.h")
+INCLUDE_DIRECTORIES("${CATKIN_DEVEL_PREFIX}/include/csm_eigen")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 find_package(Eigen3 REQUIRED)
