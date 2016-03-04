@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall") 
 
 if(WIN32)
   add_definitions(-DWINDOWS)
@@ -24,21 +24,44 @@ SET(CMAKE_BUILD_TYPE RelWithDebInfo)
 #SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../lib )
 #SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../lib )
 
+OPTION(ENABLE_C11 "Flag to enable C++11" ON)
+OPTION(ENABLE_OPTIMIZATION "Flag to enable optimizations" ON)
+
+IF (ENABLE_C11)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ENDIF()
+
+IF (ENABLE_OPTIMIZATION)
+    CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/csm/flags.h.in"
+                   "${PROJECT_BINARY_DIR}/csm/flags.h")
+    INCLUDE_DIRECTORIES("${PROJECT_BINARY_DIR}")
+ENDIF()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 find_package(Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../include ${CMAKE_CURRENT_SOURCE_DIR})
 
-SET(CSM_SRC 
-  csm/laser_data.cpp
-  csm/math_utils.cpp
-  csm/math_utils_gsl.cpp
-# csm/utils.cpp
-  csm/logging.cpp
-# csm/sm_options.cpp
-  csm/orientation.cpp
-  csm/clustering.cpp)
+IF (ENABLE_OPTIMIZATION)
+    SET(CSM_SRC 
+      csm/laser_data.cpp
+      csm/math_utils.cpp
+      csm/math_utils_gsl.cpp
+      csm/logging.cpp
+      csm/orientation.cpp
+      csm/clustering.cpp)
+ELSE()
+    SET(CSM_SRC 
+      csm/laser_data.cpp
+      csm/math_utils.cpp
+      csm/math_utils_gsl.cpp
+      csm/utils.cpp
+      csm/logging.cpp
+      csm/sm_options.cpp
+      csm/orientation.cpp
+      csm/clustering.cpp)
+ENDIF()
 
 SET(EGSL_SRC
 	egsl/egsl.cpp
@@ -59,14 +82,23 @@ SET(ICP_SRC
   icp/icp_loop.cpp
   icp/icp_outliers.cpp)
 
-#SET(OPTIONS_SRC  
-#   options/options.cpp
-#   options/options_interface.cpp)
+IF (NOT ENABLE_OPTIMIZATION)
+    SET(OPTIONS_SRC  
+       options/options.cpp
+       options/options_interface.cpp)
+ENDIF()
 
-ADD_LIBRARY(csm_eigen
-	${CSM_SRC}
-	${EGSL_SRC} 
-	${GPC_SRC}
-    #${OPTIONS_SRC}
-	${ICP_SRC})
-
+IF (ENABLE_OPTIMIZATION)
+    ADD_LIBRARY(csm_eigen
+        ${CSM_SRC}
+        ${EGSL_SRC} 
+        ${GPC_SRC}
+        ${ICP_SRC})
+ELSE()
+    ADD_LIBRARY(csm_eigen
+        ${CSM_SRC}
+        ${EGSL_SRC} 
+        ${GPC_SRC}
+        ${OPTIONS_SRC}
+        ${ICP_SRC})
+ENDIF()

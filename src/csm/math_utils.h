@@ -1,6 +1,7 @@
 #ifndef H_MATH_UTILS
 #define H_MATH_UTILS
 
+#include <csm/flags.h>
 
 /* Sometimes I really don't understand compilers.. */ 
 #ifndef M_PI
@@ -149,5 +150,23 @@ const char* friendly_pose(const T *pose) {
 		1000*pose[0],1000*pose[1],rad2deg(pose[2]));
 	return tmp_buf;
 }
+
+#ifndef ENABLE_OPTIMIZATION
+double normalize_0_2PI(double t);
+int segment_ray_tracing(const double p0[2], const double p1[2], const double eye[2], double direction, double*range);
+double segment_alpha(const double p0[2], const double p1[2]);
+double max_in_array(const double*v, int n);
+
+template <typename T>
+T dot_d(const T p[2], const T q[2]) {
+	return p[0]*q[0] + p[1]*q[1];
+}
+
+template <typename T>
+T distance_d(const T a[2], const T b[2]) {
+  return std::sqrt(distance_squared_d(a, b));
+}
+
+#endif
 
 #endif

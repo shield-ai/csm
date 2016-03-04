@@ -5,6 +5,7 @@
 //#include <gsl/gsl_matrix.h>
 #include <gsl_eigen/gsl_eigen.h>
 
+#include <csm/flags.h>
 #include "laser_data.h"
 
 
@@ -151,6 +152,10 @@ struct sm_result {
 
 
 void sm_icp(struct sm_params*input, struct sm_result*output);
+
+#ifndef ENABLE_OPTIMIZATION
+void sm_journal_open(const char* file);
+#endif
 
 void csm_free_unused_memory();
 

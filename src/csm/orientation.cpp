@@ -16,6 +16,9 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 	for(i=0;i<ld->nrays;i++){
 		if(!ld_valid_ray(ld,i) || (ld->cluster[i] == -1)) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#ifndef ENABLE_OPTIMIZATION
+			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#endif
 			ld->alpha_valid[i] = 0;
 			continue;
 		}
@@ -27,6 +30,9 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 
 		if(0==num_neighbours) {
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#ifndef ENABLE_OPTIMIZATION
+			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN(); //GSL_NAN;
+#endif
 			ld->alpha_valid[i] = 0;
 			continue;
 		}
@@ -52,9 +58,15 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 		if(_isnan(alpha)) {
 #endif
 			ld->alpha[i] = std::numeric_limits<double>::quiet_NaN();
+#ifndef ENABLE_OPTIMIZATION
+			ld->cov_alpha[i] = std::numeric_limits<double>::quiet_NaN();
+#endif
 			ld->alpha_valid[i] = 0;
 		} else {  
 			ld->alpha[i] = alpha;
+#ifndef ENABLE_OPTIMIZATION
+			ld->cov_alpha[i] = cov0_alpha * square(sigma);
+#endif
 			ld->alpha_valid[i] = 1;
 		}
 	}
@@ -95,9 +107,9 @@ void filter_orientation(double theta0, double rho0, size_t n,
 	*cov0_alpha	= square(dalpha_df1) * cov_f1 + square(dalpha_drho);
 
 #ifndef WINDOWS
-  if(std::isnan(*alpha)) {
+        if(std::isnan(*alpha)) {
 #else
-  if(_isnan(*alpha)) {
+        if(_isnan(*alpha)) {
 #endif
 		egsl_print("Y",Y);
 		egsl_print("L",L);
