@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
+FIND_PACKAGE(catkin REQUIRED)
+
 PROJECT(csm_eigen)
 
 ADD_SUBDIRECTORY(src)
