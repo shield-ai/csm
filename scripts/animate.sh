@@ -6,7 +6,7 @@ json_extract -nth 0 < /tmp/csm_journal.txt > /tmp/csm_matching.txt
 
 $ROS_DIR/workspace/src/MSCKF_2.0/postprocessing/sm_animate \
          -write_info 1 \
-         -ref_countour_color '#f00' -sens_countour_color '#00f' \
+         -ref_countour_color '#00f' -sens_countour_color '#f00' \
          -ref_countour_width 0.01 -sens_countour_width 0.01 \
          -ref_rays_draw 0 -sens_rays_draw 0 \
          -ref_pose_radius 0.04 \
