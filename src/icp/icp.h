@@ -26,7 +26,7 @@ int termination_criterion(struct sm_params*params, const double*delta);
 /** Naif algorithm */
 void find_correspondences(struct sm_params*params);
 /** Smart algorithm */
-void find_correspondences_tricks(struct sm_params*params);
+void find_correspondences_tricks(struct sm_params*params, double theta);
 	/** Checks that find_correspondences_tricks and find_correspondences behave the same.
 	 	Exit(-1) on error. */
 	void debug_correspondences(struct sm_params * params);

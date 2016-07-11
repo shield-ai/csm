@@ -5,7 +5,7 @@
 void debug_correspondences(struct sm_params * params) {
 	LDP laser_sens = params->laser_sens;
 	/** Do the test */
-	find_correspondences_tricks(params);
+	find_correspondences_tricks(params, 0.0);
 	//struct correspondence c1[laser_sens->nrays];
 	std::vector<correspondence> c1;
 	c1.reserve(laser_sens->nrays);

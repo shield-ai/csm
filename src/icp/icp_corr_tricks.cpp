@@ -45,7 +45,7 @@ INLINE double local_distance_squared_d(const double* a, const double* b)  {
 }
 
 /* Assumes that points_w is filled.  */
-void find_correspondences_tricks(struct sm_params*params) {
+void find_correspondences_tricks(struct sm_params*params, double theta) {
 	const LDP laser_ref  = params->laser_ref;
 	const LDP laser_sens = params->laser_sens;
 	int i;
@@ -211,6 +211,18 @@ void find_correspondences_tricks(struct sm_params*params) {
 		}
 
 		last_best = j1;
+
+		/* Alpha check. Should probably be moved earlier. */
+		if(params->do_alpha_test && params->laser_sens->alpha_valid[i] && params->laser_ref->alpha_valid[j1]) {
+
+			double alpha_i = params->laser_sens->alpha[i];
+			double alpha_j = params->laser_ref->alpha[j1] - theta;
+
+			if(fabs(angleDiff(alpha_j, alpha_i)) > deg2rad(params->do_alpha_test_thresholdDeg)) {
+				ld_set_null_correspondence(laser_sens, i);
+				continue;
+			}
+		}
 		
 		laser_sens->corr[i].valid = 1;
 		laser_sens->corr[i].j1 = j1;

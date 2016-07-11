@@ -39,7 +39,7 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 
 		/** Find correspondences (the naif or smart way) */
 		if(params->use_corr_tricks)
-			find_correspondences_tricks(params);
+			find_correspondences_tricks(params, x_old[2]);
 		else
 			find_correspondences(params);
 
