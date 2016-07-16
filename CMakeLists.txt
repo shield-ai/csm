@@ -54,6 +54,7 @@ INCLUDE_DIRECTORIES(
 IF (ENABLE_OPTIMIZATION)
     SET(CSM_SRC
         src/csm/laser_data.cpp
+        src/csm/laser_data_fisher.cpp
         src/csm/math_utils.cpp
         src/csm/math_utils_gsl.cpp
         src/csm/logging.cpp
@@ -62,6 +63,7 @@ IF (ENABLE_OPTIMIZATION)
 ELSE()
     SET(CSM_SRC
         src/csm/laser_data.cpp
+        src/csm/laser_data_fisher.cpp
         src/csm/math_utils.cpp
         src/csm/math_utils_gsl.cpp
         src/csm/utils.cpp
