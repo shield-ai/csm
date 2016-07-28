@@ -3,12 +3,13 @@ cmake_minimum_required(VERSION 2.6)
 PROJECT(csm_eigen)
 
 find_package(catkin REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS include ${PROJECT_SOURCE_DIR}/src
     LIBRARIES csm_eigen
-    DEPENDS Eigen3
+    DEPENDS Eigen
     )
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -47,7 +48,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 INCLUDE_DIRECTORIES(
     include
-    ${EIGEN3_INCLUDE_DIR}
+    ${EIGEN_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/src
     )
 
