@@ -51,7 +51,7 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 	ld_compute_cartesian(laser_ref);
 	ld_compute_cartesian(laser_sens);
 
-	if(params->do_alpha_test) {
+	if(params->do_alpha_test || params->extendEccentricCovariance) {
 		ld_simple_clustering(laser_ref, params->clustering_threshold);
 		ld_compute_orientation(laser_ref, params->orientation_neighbourhood, params->sigma);
 		ld_simple_clustering(laser_sens, params->clustering_threshold);
@@ -140,7 +140,7 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 			val cov_x = sc(square(params->sigma), cov0_x); 
 /*			egsl_v2da(cov_x, res->cov_x); */
 		
-			if( params->extendEccentricCovariance && params->do_alpha_test) // don't compute information if we don't do alpha_test
+			if(params->extendEccentricCovariance)
 			{
 				// information matrix
 				val fim = ld_fisher0(laser_ref);
