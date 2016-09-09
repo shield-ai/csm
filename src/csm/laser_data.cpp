@@ -221,10 +221,10 @@ int ld_valid_fields(LDP ld)  {
 				return 0;
 			}
 
-			if(ld->cluster[i] != -1 ) {
-				sm_error("Invalid ray #%d has cluster %d\n.", i, ld->cluster[i]);
-				return 0;
-			}
+			//if(ld->cluster[i] != -1 ) {
+			//	sm_error("Invalid ray #%d has cluster %d\n.", i, ld->cluster[i]);
+			//	return 0;
+			//}
 		}
 		if(ld->cluster[i] < -1 ) {
 			sm_error("Ray #%d: Invalid cluster value %d\n.", i, ld->cluster[i]);
