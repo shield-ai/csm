@@ -171,12 +171,12 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
           double inflateScale = params->eccentricCovarianceGain*((params->eccentricCovarianceMinEigThresh/evalMin)-1.0); // 0 at threshold, inversely proportional to min eig, scaled by user-specified gain
               covInflate = sc(inflateScale,covInflate);
 
-          egsl_print("cov_x", cov_x);
-          egsl_print("covInflate", covInflate);
+          //egsl_print("cov_x", cov_x);
+          //egsl_print("covInflate", covInflate);
 
           cov_x = sum(cov_x,covInflate);
 
-          printf("\n*\n*\n Inflating covariance by %f in direction [%f %f %f]\n*\n*\n",inflateScale,egsl_atv(evec[evalMinInd],0),egsl_atv(evec[evalMinInd],1),egsl_atv(evec[evalMinInd],2));
+          //printf("\n*\n*\n Inflating covariance by %f in direction [%f %f %f]\n*\n*\n",inflateScale,egsl_atv(evec[evalMinInd],0),egsl_atv(evec[evalMinInd],1),egsl_atv(evec[evalMinInd],2));
         }
       }
 
