@@ -16,8 +16,15 @@ val ld_fisher0(LDP ld) {
 	val fim   = zeros(3,3);
 	int i;
 	for(i=0;i<ld->nrays;i++) {
-		double alpha = ld->true_alpha[i];
-		if(std::isnan(alpha)) continue;
+    //double alpha = ld->true_alpha[i];
+    //if(std::isnan(alpha)) continue;
+
+    double alpha;
+    if(!std::isnan(ld->true_alpha[i])) {
+      alpha = ld->true_alpha[i];
+    } else if(ld->alpha_valid[i]) {
+      alpha = ld->alpha[i];;
+    } else continue;
 
 		double theta = ld->theta[i];
 		double beta  = alpha-theta;

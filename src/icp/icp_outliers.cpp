@@ -86,8 +86,8 @@ void kill_outliers_double(struct sm_params*params) {
 
 */
 void kill_outliers_trim(struct sm_params*params,  double*total_error) {
-		
-	LDP laser_ref  = params->laser_ref;
+
+  LDP laser_ref  = params->laser_ref;
 	LDP laser_sens = params->laser_sens;
 	
 	/* dist2, indexed by k, contains the error for the k-th correspondence */
@@ -119,9 +119,21 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 	double dist2_copy[k]; for(i=0;i<k;i++) dist2_copy[i] = dist2[i];
 #endif 
 
+
+  double maxPerc = params->outliers_maxPerc;
+  double adaptive_order = params->outliers_adaptive_order;
+  double adaptive_mult = params->outliers_adaptive_mult;
+  if(*total_error < 0.0) // PHL - hack to tell kill_outliers_trim to go easy on outliers (gets re-initialized to 0 below)
+  {
+    maxPerc = params->outliers_maxPerc_reduced;
+    adaptive_order = params->outliers_adaptive_order_reduced;
+    adaptive_mult = params->outliers_adaptive_mult_reduced;
+  }
+
+
 	/* two errors limits are defined: */
 		/* In any case, we don't want more than outliers_maxPerc% */
-		int order = (int)floor(k*(params->outliers_maxPerc));
+    int order = (int)floor(k*maxPerc);
 			order = (std::max)(0, (std::min)(order, k-1));
 
 	/* The dists for the correspondence are sorted
@@ -130,9 +142,9 @@ void kill_outliers_trim(struct sm_params*params,  double*total_error) {
 	
 		/* Then we take a order statics (o*K) */
 		/* And we say that the error must be less than alpha*dist(o*K) */
-		int order2 = (int)floor(k*params->outliers_adaptive_order);
+    int order2 = (int)floor(k*adaptive_order);
 			order2 = (std::max)(0, (std::min)(order2, k-1));
-		double error_limit2 = params->outliers_adaptive_mult*dist2[order2];
+    double error_limit2 = adaptive_mult*dist2[order2];
 	
 	double error_limit = (std::min)(dist2[order], error_limit2);
 
