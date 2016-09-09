@@ -51,7 +51,7 @@ void egsl_add_to_col(val v1, size_t j, val v2);
 
 double egsl_norm(val);
 
-//void egsl_symm_eig(val v, double* eigenvalues, val* eigenvectors);
+void egsl_symm_eig(val v, double* eigenvalues, val* eigenvectors);
 
 double egsl_atv(val, size_t i);
 //double egsl_atm(val, size_t i, size_t j);
@@ -85,7 +85,7 @@ val egsl_rot(double theta);
 /* Misc */
 void egsl_print(const char*str, val);
 /** Prints eigenvalues and eigenvectors of a symmetric matrix */
-//void egsl_print_spectrum(const char*s, val v);
+void egsl_print_spectrum(const char*s, val v);
 void egsl_print_stats(void);
 
 

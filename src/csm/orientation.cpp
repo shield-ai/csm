@@ -74,6 +74,23 @@ void ld_compute_orientation(LDP ld, int size_neighbourhood, double sigma) {
 
 /** A very cool algorithm for finding the orientation */
 
+/** Approximate summary:
+ *  if you draw a line at angle alpha, and a ray at angle theta, and then another
+ *  ray at theta+dtheta, you can form a triangle, where the hypotenuse is the segment
+ *  between the two points where the rays intersect the line, and one of the non-right
+ *  angles is theta-alpha.  The triangle edges opposite that angle and adjacent to that
+ *  angle are aprroximately dr and rdtheta respectively.  So, we have
+ *  (1)   tan( theta - alpha ) ~= (1/r)*dr/dtheta
+ *
+ *  which gives:
+ *  (2)   alpha = theta - atan( (1/r)*dr/dtheta )
+ *
+ *  Below, a weighted average of dr/dtheta is computed and then equation (2) is
+ *  evaluated.
+ *
+ *  Note however, that this approximation is only good if theta-alpha is small.
+ */
+
 void filter_orientation(double theta0, double rho0, size_t n,
  	const std::vector<double>& thetas, const std::vector<double>& rhos, double *alpha, double*cov0_alpha ) {
 	
