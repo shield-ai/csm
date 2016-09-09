@@ -140,61 +140,61 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 			val cov_x = sc(square(params->sigma), cov0_x); 
 /*			egsl_v2da(cov_x, res->cov_x); */
 		
-      if( params->extendEccentricCovariance && params->do_alpha_test) // don't compute information if we don't do alpha_test
-      {
-        // information matrix
-        val fim = ld_fisher0(laser_ref);
+			if( params->extendEccentricCovariance && params->do_alpha_test) // don't compute information if we don't do alpha_test
+			{
+				// information matrix
+				val fim = ld_fisher0(laser_ref);
 
-        // eigen-decomposition of information matrix:
-        gsl_matrix *m = egsl_gslm(cov0_x);
-        /* expect same size */
-        size_t n = m->rows();
-        double eval[n]; val evec[n];
-        egsl_symm_eig(fim, eval, evec);
+				// eigen-decomposition of information matrix:
+				gsl_matrix *m = egsl_gslm(cov0_x);
+				/* expect same size */
+				size_t n = m->rows();
+				double eval[n]; val evec[n];
+				egsl_symm_eig(fim, eval, evec);
 
-        // min eigen-val:
-        double evalMin = 1e10;
-        int evalMinInd = 0;
-        for(int evalInd=0; evalInd<n; evalInd++)
-        {
-          if(eval[evalInd] < evalMin)
-          {
-            evalMin = eval[evalInd];
-            evalMinInd = evalInd;
-          }
-        }
+				// min eigen-val:
+				double evalMin = 1e10;
+				int evalMinInd = 0;
+				for(int evalInd=0; evalInd<n; evalInd++)
+				{
+					if(eval[evalInd] < evalMin)
+					{
+						evalMin = eval[evalInd];
+						evalMinInd = evalInd;
+					}
+				}
 
-        // if min eigen-val is less than thresh, inflate covariance
-        if(evalMin < params->eccentricCovarianceMinEigThresh)
-        {
-          val covInflate = m(evec[evalMinInd],tr(evec[evalMinInd]));
-          double inflateScale = params->eccentricCovarianceGain*((params->eccentricCovarianceMinEigThresh/evalMin)-1.0); // 0 at threshold, inversely proportional to min eig, scaled by user-specified gain
-              covInflate = sc(inflateScale,covInflate);
+				// if min eigen-val is less than thresh, inflate covariance
+				if(evalMin < params->eccentricCovarianceMinEigThresh)
+				{
+					val covInflate = m(evec[evalMinInd],tr(evec[evalMinInd]));
+					double inflateScale = params->eccentricCovarianceGain*((params->eccentricCovarianceMinEigThresh/evalMin)-1.0); // 0 at threshold, inversely proportional to min eig, scaled by user-specified gain
+					covInflate = sc(inflateScale,covInflate);
 
-          //egsl_print("cov_x", cov_x);
-          //egsl_print("covInflate", covInflate);
+					//egsl_print("cov_x", cov_x);
+					//egsl_print("covInflate", covInflate);
 
-          cov_x = sum(cov_x,covInflate);
+					cov_x = sum(cov_x,covInflate);
 
-          //printf("\n*\n*\n Inflating covariance by %f in direction [%f %f %f]\n*\n*\n",inflateScale,egsl_atv(evec[evalMinInd],0),egsl_atv(evec[evalMinInd],1),egsl_atv(evec[evalMinInd],2));
-        }
-      }
+					//printf("\n*\n*\n Inflating covariance by %f in direction [%f %f %f]\n*\n*\n",inflateScale,egsl_atv(evec[evalMinInd],0),egsl_atv(evec[evalMinInd],1),egsl_atv(evec[evalMinInd],2));
+				}
+			}
 
 			res->cov_x_m = egsl_v2gslm(cov_x);
 			res->dx_dy1_m = egsl_v2gslm(dx_dy1);
 			res->dx_dy2_m = egsl_v2gslm(dx_dy2);
 
-      //if(0) {
-      //  //egsl_print("cov0_x", cov0_x);
-      //  //egsl_print_spectrum("cov0_x", cov0_x);
-      //  egsl_print_spectrum("cov_x", cov_x);
-		
-      //  val fim = ld_fisher0(laser_ref);
-      //  //egsl_print("fim", fim);
-      //  egsl_print_spectrum("fim", fim);
-      //  //val ifim = inv(fim);
-      //  //egsl_print_spectrum("ifim", ifim);
-      //}
+			//if(0) {
+			//  //egsl_print("cov0_x", cov0_x);
+			//  //egsl_print_spectrum("cov0_x", cov0_x);
+			//  egsl_print_spectrum("cov_x", cov_x);
+
+			//  val fim = ld_fisher0(laser_ref);
+			//  //egsl_print("fim", fim);
+			//  egsl_print_spectrum("fim", fim);
+			//  //val ifim = inv(fim);
+			//  //egsl_print_spectrum("ifim", ifim);
+			//}
 		}
 	
 		res->error = best_error;

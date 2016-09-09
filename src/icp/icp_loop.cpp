@@ -67,10 +67,10 @@ int icp_loop(struct sm_params*params, const double*q0, double*x_new,
 #endif
 		
 		double error=0;
-    if(iteration < params->reduced_outlier_iterations)
-    {
-      error = -1.0; // PHL - hack to tell kill_outliers_trim to go easy on outliers
-    }
+		if(iteration < params->reduced_outlier_iterations)
+		{
+			error = -1.0; // PHL - hack to tell kill_outliers_trim to go easy on outliers
+		}
 		/* Trim correspondences */
 		kill_outliers_trim(params, &error);
 		int num_corr_after = ld_num_valid_correspondences(laser_sens);

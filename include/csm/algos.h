@@ -68,17 +68,17 @@ struct sm_params {
 	/** Do not allow two different correspondences to share a point */
 	int outliers_remove_doubles; 
 
-  /** For first reduced_outlier_iterations iterations, go easy on outliers */
-  int reduced_outlier_iterations;
+	/** For first reduced_outlier_iterations iterations, go easy on outliers */
+	int reduced_outlier_iterations;
 
-  double outliers_maxPerc_reduced;
-  double outliers_adaptive_order_reduced;
-  double outliers_adaptive_mult_reduced;
+	double outliers_maxPerc_reduced;
+	double outliers_adaptive_order_reduced;
+	double outliers_adaptive_mult_reduced;
 
-  /** Option to extend covariance even further when it becomes eccentric to mitigate optimistic covariance estimates in under-constrained environments */
-  int extendEccentricCovariance;
-  double eccentricCovarianceMinEigThresh;
-  double eccentricCovarianceGain;
+	/** Option to extend covariance even further when it becomes eccentric to mitigate optimistic covariance estimates in under-constrained environments */
+	int extendEccentricCovariance;
+	double eccentricCovarianceMinEigThresh;
+	double eccentricCovarianceGain;
 
 	
 	/* Functions that compute and use point orientation for defining matches. */
