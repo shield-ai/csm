@@ -51,7 +51,7 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 	ld_compute_cartesian(laser_ref);
 	ld_compute_cartesian(laser_sens);
 
-	if(params->do_alpha_test || params->extendEccentricCovariance) {
+	if(params->do_alpha_test) {// || params->extendEccentricCovariance) {
 		ld_simple_clustering(laser_ref, params->clustering_threshold);
 		ld_compute_orientation(laser_ref, params->orientation_neighbourhood, params->sigma);
 		ld_simple_clustering(laser_sens, params->clustering_threshold);
@@ -143,23 +143,29 @@ void sm_icp(struct sm_params*params, struct sm_result*res) {
 			if(params->extendEccentricCovariance)
 			{
 				// information matrix
-				val fim = ld_fisher0(laser_ref);
+				//val fim = ld_fisher0(laser_ref);
+				// for now, we will use covariance matrix because it is expensive to compute normals which are needed for fim
 
 				// eigen-decomposition of information matrix:
 				gsl_matrix *m = egsl_gslm(cov0_x);
 				/* expect same size */
 				size_t n = m->rows();
 				double eval[n]; val evec[n];
-				egsl_symm_eig(fim, eval, evec);
+				//egsl_symm_eig(fim, eval, evec);
+				// for now, we will use covariance matrix because it is expensive to compute normals which are needed for fim
+				egsl_symm_eig(cov0_x, eval, evec);
 
 				// min eigen-val:
 				double evalMin = 1e10;
 				int evalMinInd = 0;
 				for(int evalInd=0; evalInd<n; evalInd++)
 				{
-					if(eval[evalInd] < evalMin)
+					double thisEvalInv = 1./std::max(1e-6,eval[evalInd]);
+					//if(eval[evalInd] < evalMin)
+					if(thisEvalInv < evalMin)
 					{
-						evalMin = eval[evalInd];
+						//evalMin = eval[evalInd];
+						evalMin = thisEvalInv;
 						evalMinInd = evalInd;
 					}
 				}
