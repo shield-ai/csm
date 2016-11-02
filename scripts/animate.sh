@@ -11,6 +11,7 @@ $ROS_DIR/workspace/src/MSCKF_2.0/postprocessing/sm_animate \
          -ref_rays_draw 0 -sens_rays_draw 0 \
          -ref_pose_radius 0.04 \
          -ref_horizon 65 -sens_horizon 65 \
+         -ref_connect_threshold 0.3 -sens_connect_threshold 0.3 \
          -in /tmp/csm_matching.txt -out /tmp/csm_animation.pdf
 
 evince /tmp/csm_animation.pdf
