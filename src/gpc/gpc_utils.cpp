@@ -13,7 +13,17 @@ void m_trans(const gsl_matrix*A, gsl_matrix*A_t){
 
 void m_mult(const gsl_matrix*A, const gsl_matrix*B, gsl_matrix*AB){
 	//gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,A,B,0.0,AB);
-    *AB = *A * *B;
+    //*AB = *A * *B;
+
+    for(int i = 0; i < A->rows(); i++) {
+            for(int j = 0; j < B->cols(); j++) {
+                    (*AB)(i,j) = 0;
+                    for(int k = 0; k < A->cols(); k++) {
+                            (*AB)(i,j) += (*A)(i,k) * (*B)(k,j);
+                    }
+            }
+    }
+    //printf("%d ", A->rows()*B->cols()*A->cols());
 }
 
 //void m_add_to(const gsl_matrix*A, gsl_matrix*B){

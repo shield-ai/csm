@@ -101,8 +101,18 @@ val egsl_mult(val v1, val v2){
 	val v = egsl_alloc(a->rows(),b->cols());
 	gsl_matrix * ab = egsl_gslm(v); 
 
-	//gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,a,b,0.0,ab);
-	*ab = *a * *b;
+        //gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,a,b,0.0,ab);
+        //*ab = *a * *b;
+
+        for(int i = 0; i < a->rows(); i++) {
+                for(int j = 0; j < b->cols(); j++) {
+                        (*ab)(i,j) = 0;
+                        for(int k = 0; k < a->cols(); k++) {
+                                (*ab)(i,j) += (*a)(i,k) * (*b)(k,j);
+                        }
+                }
+        }
+        //printf("%d ", a->rows()*b->cols()*a->cols());
 
 	return v;
 
